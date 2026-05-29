@@ -1107,11 +1107,13 @@ header {
 /* --- Profile Workspace (eKYC, Cart, History) --- */
 .profile-layout {
   max-width: 1280px;
+  width: 100%;
   margin: var(--spacing-lg) auto var(--spacing-xl);
   padding: 0 var(--spacing-lg);
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 260px minmax(0, 1fr);
   gap: var(--spacing-lg);
+  box-sizing: border-box;
 }
 
 .profile-sidebar {
@@ -1145,6 +1147,18 @@ header {
 
 .profile-content {
   padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  min-height: 700px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.profile-section-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
 }
 
 .profile-section-header {

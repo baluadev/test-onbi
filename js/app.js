@@ -651,7 +651,7 @@ function initProfileView(sectionId) {
   document.querySelectorAll(".profile-section-wrapper").forEach(el => {
     el.style.display = "none";
   });
-  document.getElementById(`profile-sec-${sectionId}`).style.display = "block";
+  document.getElementById(`profile-sec-${sectionId}`).style.display = "flex";
 
   // Trigger sub-renderers
   if (sectionId === "kyc") {
@@ -1754,19 +1754,39 @@ function updateBiddingConsolePrices() {
     }
   } else if (!isRegistered) {
     // Status A: Not registered
-    mainBtn.innerText = "ĐĂNG KÝ THAM GIA";
-    mainBtnWords.innerText = `Lệ phí và cọc thầu: ${asset.depositAmount.toLocaleString()} đ`;
-    mainBtn.onclick = () => {
-      handleAssetRegistration(asset.id);
-      updateBiddingBoard();
-    };
+    if (now >= startTime) {
+      mainBtn.innerText = "CHƯA ĐĂNG KÝ THAM GIA";
+      mainBtnWords.innerText = "Phiên đấu giá đang diễn ra. Bạn không thể đặt giá do chưa đăng ký.";
+      mainBtn.disabled = true;
+      mainBtn.style.opacity = "0.5";
+      mainBtn.style.cursor = "not-allowed";
+      mainBtn.style.filter = "grayscale(80%)";
+      mainBtn.onclick = null;
+    } else {
+      mainBtn.innerText = "ĐĂNG KÝ THAM GIA";
+      mainBtnWords.innerText = `Lệ phí và cọc thầu: ${asset.depositAmount.toLocaleString()} đ`;
+      mainBtn.onclick = () => {
+        handleAssetRegistration(asset.id);
+        updateBiddingBoard();
+      };
+    }
   } else if (!depositPaid) {
     // Status B: Registered but not paid deposit
-    mainBtn.innerText = "NỘP TIỀN ĐẶT TRƯỚC (CỌC)";
-    mainBtnWords.innerText = `Số tiền đặt trước: ${asset.depositAmount.toLocaleString()} đ`;
-    mainBtn.onclick = () => {
-      openDepositModal(asset.id);
-    };
+    if (now >= startTime) {
+      mainBtn.innerText = "CHƯA NỘP TIỀN ĐẶT TRƯỚC (CỌC)";
+      mainBtnWords.innerText = "Phiên đấu giá đang diễn ra. Bạn không thể đặt giá do chưa nộp cọc.";
+      mainBtn.disabled = true;
+      mainBtn.style.opacity = "0.5";
+      mainBtn.style.cursor = "not-allowed";
+      mainBtn.style.filter = "grayscale(80%)";
+      mainBtn.onclick = null;
+    } else {
+      mainBtn.innerText = "NỘP TIỀN ĐẶT TRƯỚC (CỌC)";
+      mainBtnWords.innerText = `Số tiền đặt trước: ${asset.depositAmount.toLocaleString()} đ`;
+      mainBtn.onclick = () => {
+        openDepositModal(asset.id);
+      };
+    }
   } else if (now < startTime) {
     // Status C: Paid deposit but upcoming (not started yet)
     mainBtn.innerText = "CHỜ ĐẾN PHIÊN ĐẤU GIÁ";
@@ -2667,19 +2687,11 @@ function renderDetailActionCard() {
     subtext = `Trạng thái: Phiên thầu đã đóng. Kết quả: ${asset.bidCount > 0 ? "Đấu giá thành công ✓" : "Đấu giá không thành x"}.`;
   } else if (isLive) {
     if (!isRegistered) {
-      actionHtml = `
-        <button class="btn btn-primary" style="width: 100%; padding: 14px 20px; font-size: 15px; font-weight: 800;" onclick="handleAssetRegistration('${asset.id}'); setTimeout(initDetailAssetView, 150, '${asset.id}');">
-          ĐĂNG KÝ THAM GIA
-        </button>
-      `;
-      subtext = "Trạng thái: Phiên thầu đang diễn ra trực tiếp. Đăng ký tham gia để nhận quyền trả giá.";
+      actionHtml = ""; // Hide button completely!
+      subtext = "Trạng thái: Phiên thầu đang diễn ra trực tiếp. Đã quá hạn đăng ký tham gia.";
     } else if (!depositPaid) {
-      actionHtml = `
-        <button class="btn btn-secondary" style="width: 100%; padding: 14px 20px; font-size: 15px; font-weight: 800;" onclick="openDepositModal('${asset.id}')">
-          NỘP TIỀN ĐẶT TRƯỚC (CỌC) 💸
-        </button>
-      `;
-      subtext = "Trạng thái: Đã đăng ký tham gia. Vui lòng nộp cọc ngân hàng để cấp quyền thợ đấu.";
+      actionHtml = ""; // Hide button completely!
+      subtext = "Trạng thái: Phiên thầu đang diễn ra. Đã quá hạn nộp tiền đặt trước (cọc).";
     } else {
       actionHtml = `
         <button class="btn btn-primary" style="width: 100%; padding: 14px 20px; font-size: 15px; font-weight: 800; background: var(--tertiary); border-color: var(--tertiary); color: var(--on-tertiary); box-shadow: 0 4px 15px var(--tertiary-glow);" onclick="appRouter.navigate('bidding', '${asset.id}')">

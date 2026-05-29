@@ -896,7 +896,7 @@
               <h2 style="font-size: 18px; color: #fff; margin: 0; text-align: left;">Thiết lập bảo mật</h2>
             </div>
             
-            <div class="glass-panel security-2fa-layout" style="padding: var(--spacing-lg); text-align: left;">
+            <div class="security-2fa-layout" style="padding: var(--spacing-lg); text-align: left; flex: 1; display: flex; flex-direction: column; justify-content: center;">
               <h3 style="font-size: 15px; font-weight: 700; color: #fff; margin-top: 0; margin-bottom: var(--spacing-lg); display: flex; align-items: center; gap: 8px;">
                 Xác minh 2 bước
                 <span class="badge" id="security-2fa-badge" style="font-size: 10px; padding: 2px 6px; background: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255, 107, 107, 0.3); color: var(--error);">Chưa kích hoạt</span>
@@ -958,6 +958,20 @@
                   </tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          <!-- SECTION F: FAVORITE AUCTIONS (MOCK TAB) -->
+          <div id="profile-sec-favorites" class="profile-section-wrapper" style="display: none;">
+            <div class="profile-section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+              <h2 style="font-size: 18px; color: #fff; margin: 0;">Cuộc đấu giá yêu thích</h2>
+              <span class="results-count" style="font-size: 13px; color: var(--primary);">Chưa có tài sản</span>
+            </div>
+            
+            <div style="text-align: center; padding: 48px; color: var(--on-surface-variant); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--spacing-md); flex: 1;">
+              <span style="font-size: 40px;">💖</span>
+              <p style="margin: 0; font-size: 14px; color: var(--on-surface-variant);">Bạn chưa thêm cuộc đấu giá nào vào danh sách yêu thích.</p>
+              <button class="btn btn-primary" onclick="appRouter.navigate('search')" style="padding: 8px 16px; font-size: 12.5px; font-weight: 700; margin-top: 8px;">Khám phá tài sản ngay</button>
             </div>
           </div>
 
