@@ -670,86 +670,184 @@ function switchProfileSection(sectionId) {
 }
 
 // Sub A: eKYC Render & Actions - Screen IV.a
+let loadedFront = false;
+let loadedBack = false;
+let loadedVNeIDFront = false;
+let loadedVNeIDBack = false;
+
 function renderKycSection() {
   const user = CustomerDB.state.currentUser;
   if (!user) return;
 
-  const badge = document.getElementById("profile-kyc-status-badge");
-  const linkedBox = document.getElementById("vneid-linked-container");
-  const unlinkedBox = document.getElementById("vneid-unlinked-container");
-  const manualForm = document.getElementById("manual-kyc-form");
+  const subLanding = document.getElementById("kyc-sub-landing");
+  const subForm = document.getElementById("kyc-sub-form");
+  const subVNeID = document.getElementById("kyc-sub-vneid-stepper");
 
-  // Populate text inputs
-  document.getElementById("profile-fullName").value = user.fullName;
-  document.getElementById("profile-idCard").value = user.idCard;
-  document.getElementById("profile-phone").value = user.phone;
-  document.getElementById("profile-email").value = user.email;
-  document.getElementById("profile-bankName").value = user.bankName;
-  document.getElementById("profile-bankAccount").value = user.bankAccount;
-  document.getElementById("profile-bankOwner").value = user.bankOwner;
+  if (!user.kycStatus || user.kycStatus === "UNVERIFIED") {
+    subForm.style.display = "none";
+    subVNeID.style.display = "none";
+    subLanding.style.display = "flex";
 
-  // Set welcome name dynamically
-  const welcomeNameEl = document.getElementById("profile-welcome-name");
-  if (welcomeNameEl) {
-    welcomeNameEl.innerText = user.fullName;
-  }
-
-  if (user.kycStatus === "APPROVED_VNeID") {
-    badge.innerText = "✓ XÁC THỰC VNeID";
-    badge.className = "badge badge-success";
-    linkedBox.style.display = "flex";
-    unlinkedBox.style.display = "none";
-    manualForm.style.display = "none";
-  } else if (user.kycStatus === "APPROVED_CCCD") {
-    badge.innerText = "✓ CCCD ĐÃ PHÊ DUYỆT";
-    badge.className = "badge badge-success";
-    linkedBox.style.display = "none";
-    unlinkedBox.style.display = "none";
-    manualForm.style.display = "block";
-    document.getElementById("front-loaded-visual").style.display = "flex";
-    document.getElementById("back-loaded-visual").style.display = "flex";
+    renderKycWelcomeCard("kyc-landing-welcome", user, false);
   } else {
-    badge.innerText = "CHƯA XÁC THỰC";
-    badge.className = "badge badge-live";
-    linkedBox.style.display = "none";
-    unlinkedBox.style.display = "flex";
-    manualForm.style.display = "block";
-    document.getElementById("front-loaded-visual").style.display = "none";
-    document.getElementById("back-loaded-visual").style.display = "none";
+    subLanding.style.display = "none";
+    subVNeID.style.display = "none";
+    subForm.style.display = "flex";
+
+    renderKycWelcomeCard("kyc-form-welcome", user, true);
+    toggleKycFormInputs(true);
+    populateKycFormValues(user);
+
+    document.getElementById("kyc-form-header-title").innerText = "Thông tin tài khoản";
   }
 }
 
-function simulateVNeIDInstantKYC() {
-  showToast("Liên kết VNeID 🔗", "Đang truy vấn xác thực cơ sở dữ liệu quốc gia C06...", "warning");
-  
-  // Show dynamic loader screen overlay
-  const overlay = document.createElement("div");
-  overlay.className = "ocr-scan-overlay";
-  overlay.innerHTML = `
-    <div class="ocr-scan-line"></div>
-    <span style="font-size: 32px; margin-bottom: var(--spacing-sm)">🛡️</span>
-    <h3 style="color:#fff">ĐANG ĐỐI SOÁT VNeID</h3>
-    <p style="font-size:12px; color:var(--on-surface-variant)">Vui lòng xác nhận chia sẻ thông tin trên ứng dụng VNeID di động của bạn...</p>
-  `;
-  document.getElementById("profile-sec-kyc").appendChild(overlay);
+function renderKycWelcomeCard(targetId, user, isVerified) {
+  const container = document.getElementById(targetId);
+  if (!container) return;
 
-  setTimeout(() => {
-    overlay.remove();
-    CustomerDB.updateKYCVNeID();
-    renderKycSection();
-    updateHeaderUserWidget();
-    showToast("Thành công! 🛡️", "Xác thực danh tính VNeID cấp độ 2 chính chủ thành công. Đã cấp quyền đấu thầu pháp lý.");
-  }, 2000);
+  const badgeText = isVerified 
+    ? (user.kycStatus === "APPROVED_VNeID" ? "✓ ĐÃ XÁC THỰC VNeID" : "✓ CCCD ĐÃ PHÊ DUYỆT") 
+    : "✖ Chưa xác minh";
+    
+  const badgeClass = isVerified ? "badge badge-success" : "badge";
+  const badgeStyle = isVerified 
+    ? "padding: 2px 6px; font-size: 10px; background: rgba(0, 230, 118, 0.1); border: 1px solid rgba(0, 230, 118, 0.3); color: var(--tertiary); font-weight: 700;"
+    : "padding: 2px 6px; font-size: 10px; background: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255, 107, 107, 0.3); color: var(--error); font-weight: 700;";
+
+  container.innerHTML = `
+    <div class="welcome-card-left" style="text-align: left;">
+      <h3 class="welcome-card-title" style="font-size: 17px; color: #fff; margin-bottom: 4px;">Xin chào, <span style="color: var(--primary);">${user.fullName}</span></h3>
+      <p class="welcome-card-sub" style="font-size: 12px; color: var(--on-surface-variant); margin: 0;">Đăng nhập lần cuối: <span style="font-family: var(--font-mono); color: #fff;">16:10:28 29/05/2026 Hanoi, VN</span></p>
+    </div>
+    <div class="welcome-card-center" style="display: flex; gap: var(--spacing-lg);">
+      <div class="welcome-stat-item" style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
+        <span class="welcome-stat-label" style="font-size: 11px; color: var(--on-surface-variant);">Xác minh danh tính</span>
+        <span class="${badgeClass}" style="${badgeStyle}">${badgeText}</span>
+      </div>
+      <div class="welcome-stat-item" style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
+        <span class="welcome-stat-label" style="font-size: 11px; color: var(--on-surface-variant);">Loại tài khoản</span>
+        <span class="welcome-stat-val" style="font-size: 13px; font-weight: 700; color: #fff;">Cá nhân</span>
+      </div>
+    </div>
+    <div class="welcome-card-right">
+      <button class="btn btn-glass btn-sm" style="padding: 6px 12px; font-size: 12px;" onclick="openModal('modal-change-password')">Thay đổi mật khẩu</button>
+    </div>
+  `;
 }
 
-let loadedFront = false;
-let loadedBack = false;
+function toggleKycFormInputs(disabled) {
+  const ids = [
+    "profile-fullName", "profile-dob", "profile-email", "profile-phone", "profile-address",
+    "profile-idCard", "profile-idDate", "profile-idPlace", "profile-bankName", "profile-bankOwner", "profile-bankAccount"
+  ];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = disabled;
+  });
+
+  const uploads = document.getElementById("manual-form-photo-uploads");
+  if (uploads) {
+    uploads.style.display = disabled ? "none" : "block";
+  }
+
+  const actions = document.getElementById("kyc-form-actions-row");
+  if (actions) {
+    actions.style.display = disabled ? "none" : "flex";
+  }
+}
+
+function populateKycFormValues(user) {
+  document.getElementById("profile-fullName").value = user.fullName || "";
+  document.getElementById("profile-dob").value = user.dob || "1990-05-15";
+  document.getElementById("profile-email").value = user.email || "";
+  document.getElementById("profile-phone").value = user.phone || "";
+  document.getElementById("profile-address").value = user.address || "";
+  document.getElementById("profile-idCard").value = user.idCard || "";
+  document.getElementById("profile-idDate").value = user.idDate || "2021-09-15";
+  document.getElementById("profile-idPlace").value = user.idPlace || "Cục Cảnh sát Quản lý hành chính về trật tự xã hội";
+  document.getElementById("profile-bankName").value = user.bankName || "";
+  document.getElementById("profile-bankAccount").value = user.bankAccount || "";
+  document.getElementById("profile-bankOwner").value = user.bankOwner || "";
+}
+
+function triggerOtpRequest(type) {
+  showToast("Mã OTP đã gửi! 💬", "Vui lòng nhập mã OTP gồm 6 chữ số gửi tới số điện thoại để hoàn tất liên kết.");
+  const btn = document.getElementById(`btn-${type}-otp`);
+  if (btn) {
+    btn.innerText = "Đã gửi (60s)";
+    btn.disabled = true;
+    let sec = 60;
+    const interval = setInterval(() => {
+      sec--;
+      if (sec <= 0) {
+        clearInterval(interval);
+        btn.innerText = "Lấy OTP";
+        btn.disabled = false;
+      } else {
+        btn.innerText = `Đã gửi (${sec}s)`;
+      }
+    }, 1000);
+  }
+}
+
+function switchToKycLanding() {
+  renderKycSection();
+}
+
+function switchToKycManualForm() {
+  const user = CustomerDB.state.currentUser;
+  if (!user) return;
+
+  const subLanding = document.getElementById("kyc-sub-landing");
+  const subForm = document.getElementById("kyc-sub-form");
+  const subVNeID = document.getElementById("kyc-sub-vneid-stepper");
+
+  subLanding.style.display = "none";
+  subVNeID.style.display = "none";
+  subForm.style.display = "flex";
+
+  document.getElementById("kyc-form-header-title").innerText = "Thông tin tài khoản";
+  renderKycWelcomeCard("kyc-form-welcome", user, false);
+
+  toggleKycFormInputs(false);
+  populateKycFormValues(user);
+
+  loadedFront = false;
+  loadedBack = false;
+  document.getElementById("front-loaded-visual").style.display = "none";
+  document.getElementById("back-loaded-visual").style.display = "none";
+}
+
+function switchToKycVNeIDStepper() {
+  const user = CustomerDB.state.currentUser;
+  if (!user) return;
+
+  const subLanding = document.getElementById("kyc-sub-landing");
+  const subForm = document.getElementById("kyc-sub-form");
+  const subVNeID = document.getElementById("kyc-sub-vneid-stepper");
+
+  subLanding.style.display = "none";
+  subForm.style.display = "none";
+  subVNeID.style.display = "flex";
+
+  document.getElementById("vneid-idCard").value = user.idCard || "";
+  document.getElementById("vneid-phone").value = user.phone || "";
+  document.getElementById("vneid-email").value = user.email || "";
+  document.getElementById("vneid-bankName").value = user.bankName || "";
+  document.getElementById("vneid-bankOwner").value = user.bankOwner || "";
+  document.getElementById("vneid-bankAccount").value = user.bankAccount || "";
+
+  loadedVNeIDFront = false;
+  loadedVNeIDBack = false;
+  document.getElementById("vneid-front-loaded-visual").style.display = "none";
+  document.getElementById("vneid-back-loaded-visual").style.display = "none";
+}
 
 function triggerManualKYCUpload(side) {
-  // Simulate picking and uploading files - Screen IV.a OCR Scan
   const card = document.getElementById(`cccd-${side}-card`);
+  if (!card) return;
   
-  // Add scanner overlay
   const overlay = document.createElement("div");
   overlay.className = "ocr-scan-overlay";
   overlay.innerHTML = `
@@ -763,23 +861,91 @@ function triggerManualKYCUpload(side) {
     document.getElementById(`${side}-loaded-visual`).style.display = "flex";
     if (side === "front") loadedFront = true;
     if (side === "back") loadedBack = true;
-    showToast("Tải ảnh thành công 📷", `Đã nhận và quét xong OCR trích xuất dữ liệu mặt ${side === 'front' ? 'trước' : 'sau'} CCCD.`);
+    if (side === "vneid-front") loadedVNeIDFront = true;
+    if (side === "vneid-back") loadedVNeIDBack = true;
+    showToast("Tải ảnh thành công 📷", `Đã nhận và quét xong OCR trích xuất dữ liệu mặt ${side.includes('front') ? 'trước' : 'sau'} CCCD.`);
   }, 1500);
 }
 
-function submitManualKYCDocuments() {
+function submitManualKycForm() {
+  const fullName = document.getElementById("profile-fullName").value;
+  const email = document.getElementById("profile-email").value;
+  const phone = document.getElementById("profile-phone").value;
+  const address = document.getElementById("profile-address").value;
+  const idCard = document.getElementById("profile-idCard").value;
+  const idDate = document.getElementById("profile-idDate").value;
+  const idPlace = document.getElementById("profile-idPlace").value;
+  const bankName = document.getElementById("profile-bankName").value;
+  const bankOwner = document.getElementById("profile-bankOwner").value;
+  const bankAccount = document.getElementById("profile-bankAccount").value;
+
+  if (!fullName || !email || !phone || !address || !idCard || !bankName || !bankOwner || !bankAccount) {
+    showToast("Thiếu thông tin ⚠️", "Vui lòng nhập đầy đủ các trường thông tin bắt buộc (*).", "warning");
+    return;
+  }
+
   if (!loadedFront || !loadedBack) {
     showToast("Thiếu tài liệu ⚠️", "Vui lòng chụp và tải ảnh cả 2 mặt trước và mặt sau CCCD để gửi phê duyệt.", "warning");
     return;
   }
-  
+
   showToast("Gửi hồ sơ 🚀", "Đang gửi hồ sơ định danh lên Chuyên viên kiểm duyệt...", "warning");
   setTimeout(() => {
-    CustomerDB.updateKYCManual();
+    CustomerDB.updateKYCManual(fullName, email, phone, address, idCard, idDate, idPlace, bankName, bankOwner, bankAccount);
     renderKycSection();
     updateHeaderUserWidget();
-    showToast("Hồ sơ đã duyệt! ✓", "Chuyên viên đã đối soát khớp thông tin và phê duyệt KYC của bạn.");
+    showToast("Hồ sơ đã duyệt! ✓", "Chuyên viên đã đối soát khớp thông tin và phê duyệt eKYC của bạn.");
   }, 1500);
+}
+
+function continueKycVNeIDStepper() {
+  const idCard = document.getElementById("vneid-idCard").value;
+  const phone = document.getElementById("vneid-phone").value;
+  const email = document.getElementById("vneid-email").value;
+  const bankName = document.getElementById("vneid-bankName").value;
+  const bankOwner = document.getElementById("vneid-bankOwner").value;
+  const bankAccount = document.getElementById("vneid-bankAccount").value;
+
+  if (!idCard || !phone || !email || !bankName || !bankOwner || !bankAccount) {
+    showToast("Thiếu thông tin ⚠️", "Vui lòng điền đầy đủ các thông tin định danh và tài khoản ngân hàng để liên kết.", "warning");
+    return;
+  }
+
+  if (!loadedVNeIDFront || !loadedVNeIDBack) {
+    showToast("Thiếu tài liệu ⚠️", "Vui lòng chụp và tải ảnh cả 2 mặt trước và mặt sau CCCD để xác thực.", "warning");
+    return;
+  }
+
+  showToast("Xác thực VNeID 🔗", "Đang liên kết xác thực cơ sở dữ liệu quốc gia C06...", "warning");
+  
+  const overlay = document.createElement("div");
+  overlay.className = "ocr-scan-overlay";
+  overlay.innerHTML = `
+    <div class="ocr-scan-line"></div>
+    <span style="font-size: 32px; margin-bottom: var(--spacing-sm)">🛡️</span>
+    <h3 style="color:#fff">ĐANG ĐỐI SOÁT VNeID C06</h3>
+    <p style="font-size:12px; color:var(--on-surface-variant)">Đang kết nối xác thực thời gian thực cơ sở dữ liệu dân cư quốc gia...</p>
+  `;
+  document.getElementById("profile-sec-kyc").appendChild(overlay);
+
+  setTimeout(() => {
+    overlay.remove();
+    CustomerDB.updateKYCVNeID();
+    
+    // Save step 1 details into DB
+    CustomerDB.updateProfileDetails(
+      "Mr Ba (Mr Ba)",
+      email,
+      phone,
+      bankName,
+      bankAccount,
+      bankOwner
+    );
+
+    renderKycSection();
+    updateHeaderUserWidget();
+    showToast("Thành công! 🛡️", "Xác thực danh tính VNeID cấp độ 2 chính chủ thành công. Đã cấp quyền đấu thầu pháp lý.");
+  }, 2000);
 }
 
 function handleProfileSave() {

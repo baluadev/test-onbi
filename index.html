@@ -637,143 +637,273 @@
           <!-- SECTION A: KYC / PROFILE DETAILS -->
           <div id="profile-sec-kyc" class="profile-section-wrapper">
             
-            <!-- Welcome Info Card (Glassmorphic) -->
-            <div class="glass-panel profile-welcome-card" style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); background: rgba(212,175,55,0.03); border-color: rgba(212,175,55,0.15);">
-              <div class="welcome-card-left" style="text-align: left;">
-                <h3 class="welcome-card-title" style="font-size: 17px; color: #fff; margin-bottom: 4px;">Xin chào, <span id="profile-welcome-name" style="color: var(--primary);">Người dùng thầu</span></h3>
-                <p class="welcome-card-sub" style="font-size: 12px; color: var(--on-surface-variant); margin: 0;">Đăng nhập lần cuối: <span id="profile-last-login" style="font-family: var(--font-mono); color: #fff;">10:34:44 29/05/2026 Hanoi, VN</span></p>
+            <!-- SUB-VIEW 1: UNVERIFIED LANDING (Image 1) -->
+            <div id="kyc-sub-landing" style="display: none; flex-direction: column; flex: 1;">
+              <div class="profile-section-header" style="margin-bottom: var(--spacing-md);">
+                <h2 style="font-size: 18px; color: #fff; margin: 0; text-align: left;">Thông tin cá nhân</h2>
               </div>
-              <div class="welcome-card-center" style="display: flex; gap: var(--spacing-lg);">
-                <div class="welcome-stat-item" style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
-                  <span class="welcome-stat-label" style="font-size: 11px; color: var(--on-surface-variant);">Xác minh danh tính</span>
-                  <span class="badge badge-success" id="profile-kyc-status-badge" style="padding: 2px 6px; font-size: 10px;">✓ Đã xác minh</span>
-                </div>
-                <div class="welcome-stat-item" style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
-                  <span class="welcome-stat-label" style="font-size: 11px; color: var(--on-surface-variant);">Loại tài khoản</span>
-                  <span class="welcome-stat-val" style="font-size: 13px; font-weight: 700; color: #fff;">Cá nhân</span>
-                </div>
-              </div>
-              <div class="welcome-card-right">
-                <button class="btn btn-glass btn-sm" style="padding: 6px 12px; font-size: 12px;" onclick="openModal('modal-change-password')">Thay đổi mật khẩu</button>
-              </div>
-            </div>
-
-            <!-- Personal Info Card Group -->
-            <div class="glass-panel profile-form-group-card" style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md);">
-              <h3 class="profile-card-section-title" style="font-size: 15px; color: #fff; margin-bottom: var(--spacing-md); text-align: left; border-left: 3px solid var(--primary); padding-left: 8px;">Thông tin cá nhân</h3>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
-                <div class="form-group">
-                  <label class="form-label">Họ và tên (*)</label>
-                  <input type="text" class="form-control" id="profile-fullName" value="Nguyễn Văn A">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Số điện thoại (*)</label>
-                  <input type="text" class="form-control" id="profile-phone" value="0367266064">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Ngày sinh (*)</label>
-                  <input type="date" class="form-control" id="profile-dob" value="1990-05-15">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Địa chỉ email (*)</label>
-                  <input type="email" class="form-control" id="profile-email" value="taikhoandemo1@gmail.com">
-                </div>
-              </div>
-              <div class="form-group" style="margin-top: var(--spacing-sm); margin-bottom: 0;">
-                <label class="form-label">Địa chỉ thường trú (*)</label>
-                <input type="text" class="form-control" id="profile-address" placeholder="Nhập địa chỉ thường trú..." value="15 Lê Lợi, Bến Nghé, Quận 1, TP. Hồ Chí Minh">
-              </div>
-            </div>
-
-            <!-- Identity Info Card Group -->
-            <div class="glass-panel profile-form-group-card" style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md);">
-              <h3 class="profile-card-section-title" style="font-size: 15px; color: #fff; margin-bottom: var(--spacing-md); text-align: left; border-left: 3px solid var(--primary); padding-left: 8px;">Thông tin định danh</h3>
               
-              <!-- VNeID Identity verification link card -->
-              <div class="kyc-status-container" id="vneid-linked-container" style="display: none; margin-bottom: var(--spacing-md); padding: 12px; background: rgba(0, 230, 118, 0.05); border: 1px solid rgba(0, 230, 118, 0.15); border-radius: var(--radius-default); align-items: center; gap: var(--spacing-md);">
-                <span style="font-size: 32px;">🛡️</span>
-                <div style="text-align: left; flex: 1;">
-                  <h4 style="color: #fff; font-size: 13px; margin-bottom: 2px;">TÀI KHOẢN ĐÃ LIÊN KẾT ĐỊNH DANH QUỐC GIA VNeID</h4>
-                  <p style="font-size: 11px; color: var(--on-surface-variant); margin:0;">Hồ sơ của bạn đã được xác thực cấp độ 2 chính chủ từ cơ sở dữ liệu dân cư Bộ Công An. Bạn có đầy đủ quyền tham gia trả giá và ký số biên bản thầu.</p>
-                </div>
+              <!-- Welcome Info Card (Glassmorphic) -->
+              <div class="glass-panel profile-welcome-card" id="kyc-landing-welcome" style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.08);">
+                <!-- Populated dynamically -->
               </div>
-
-              <div class="kyc-status-container" id="vneid-unlinked-container" style="margin-bottom: var(--spacing-md); padding: 12px; background: rgba(255, 184, 0, 0.05); border: 1px solid rgba(255, 184, 0, 0.15); border-radius: var(--radius-default); display: flex; align-items: center; gap: var(--spacing-md);">
-                <span style="font-size: 32px; color: var(--secondary)">⚠️</span>
-                <div style="text-align: left; flex: 1;">
-                  <h4 style="color: #fff; font-size: 13px; margin-bottom: 2px;">YÊU CẦU ĐỊNH DANH TÀI KHOẢN</h4>
-                  <p style="font-size: 11px; color: var(--on-surface-variant); margin:0;">Để tham gia đặt giá pháp lý cho các tài sản thầu, tài khoản bắt buộc phải liên kết VNeID hoặc chụp gửi giấy tờ.</p>
-                </div>
-                <button class="btn btn-primary btn-sm" style="padding: 6px 12px; font-size: 11px;" onclick="simulateVNeIDInstantKYC()">LIÊN KẾT VNeID (3s)</button>
-              </div>
-
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
-                <div class="form-group">
-                  <label class="form-label">Số CCCD (*)</label>
-                  <input type="text" class="form-control" id="profile-idCard" value="001095009982">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Ngày cấp (*)</label>
-                  <input type="date" class="form-control" id="profile-idDate" value="2021-09-15">
-                </div>
-              </div>
-              <div class="form-group" style="margin-top: var(--spacing-sm); margin-bottom: var(--spacing-md);">
-                <label class="form-label">Nơi cấp (*)</label>
-                <input type="text" class="form-control" id="profile-idPlace" placeholder="Nhập nơi cấp..." value="Cục Cảnh sát Quản lý hành chính về trật tự xã hội">
-              </div>
-
-              <!-- Manual Photo Upload Cards -->
-              <div id="manual-kyc-form" style="margin-bottom: 0;">
-                <label class="form-label" style="margin-bottom: var(--spacing-sm);">Ảnh CCCD mặt trước & mặt sau (*)</label>
-                <div class="kyc-cards-row" style="margin-bottom: 0;">
-                  <div class="kyc-upload-card" onclick="triggerManualKYCUpload('front')" id="cccd-front-card" style="position: relative;">
-                    <div class="kyc-upload-icon">📷</div>
-                    <div class="kyc-upload-title">ẢNH CCCD MẶT TRƯỚC (*)</div>
-                    <div class="kyc-upload-desc">Định dạng JPG, PNG dưới 5MB</div>
-                    <div id="front-loaded-visual" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,230,118,0.12); display: flex; align-items: center; justify-content: center; font-weight:700; color:var(--tertiary);">✓ Đã chụp ảnh</div>
-                  </div>
-                  <div class="kyc-upload-card" onclick="triggerManualKYCUpload('back')" id="cccd-back-card" style="position: relative;">
-                    <div class="kyc-upload-icon">📷</div>
-                    <div class="kyc-upload-title">ẢNH CCCD MẶT SAU (*)</div>
-                    <div class="kyc-upload-desc">Định dạng JPG, PNG dưới 5MB</div>
-                    <div id="back-loaded-visual" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,230,118,0.12); display: flex; align-items: center; justify-content: center; font-weight:700; color:var(--tertiary);">✓ Đã chụp ảnh</div>
+              
+              <!-- Verification illustration and choice card -->
+              <div class="glass-panel kyc-unverified-card" style="padding: var(--spacing-xl); text-align: left; display: flex; align-items: center; gap: var(--spacing-xl); flex: 1;">
+                <div style="flex: 1;">
+                  <h3 style="font-size: 20px; font-weight: 700; color: #fff; margin-top: 0; margin-bottom: var(--spacing-md);">Xác minh danh tính</h3>
+                  <p style="font-size: 13.5px; color: var(--on-surface-variant); line-height: 1.6; margin-bottom: var(--spacing-xl); max-width: 520px;">
+                    Chỉ mất 3-5 phút để xác minh danh tính của bạn.<br>Mở khoá tất cả các tính năng trên hệ thống của chúng tôi, bạn có thể đưa sản phẩm lên đấu giá và tham gia đấu giá.
+                  </p>
+                  
+                  <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="switchToKycVNeIDStepper()" style="background: #13a059; border-color: #13a059; color: #fff; font-weight: 700; padding: 12px 24px; font-size: 13.5px; display: flex; align-items: center; gap: 8px;">
+                      Xác minh qua VNeID
+                    </button>
+                    <button class="btn" onclick="switchToKycManualForm()" style="background: rgba(255,255,255,0.05); border: 1px solid var(--outline-variant); color: #fff; font-weight: 700; padding: 12px 24px; font-size: 13.5px;">
+                      Xác minh thủ công
+                    </button>
                   </div>
                 </div>
-                <div class="form-group" style="text-align: right; margin-top: var(--spacing-md); margin-bottom: 0;">
-                  <button class="btn btn-secondary" onclick="submitManualKYCDocuments()" id="btn-manual-kyc-submit">GỬI YÊU CẦU XÉT DUYỆT</button>
+                
+                <!-- CSS Protective Shield Graphic -->
+                <div class="kyc-shield-illustration-box" style="flex: 0 0 200px; display: flex; justify-content: center; align-items: center;">
+                  <div class="kyc-shield-graphic" style="width: 130px; height: 150px; position: relative;">
+                    <div class="shield-3d-wrap" style="width: 100%; height: 100%; position: relative; animation: shieldFloat 4s ease-in-out infinite; transform-style: preserve-3d;">
+                      <div class="shield-body" style="width: 100%; height: 100%; background: linear-gradient(135deg, #1e88e5, #0d47a1); border-radius: 50% 50% 50% 50% / 15% 15% 85% 85%; border: 3px solid rgba(255,255,255,0.2); box-shadow: 0 15px 35px rgba(21, 101, 192, 0.45); display: flex; align-items: center; justify-content: center; position: relative;">
+                        <span class="shield-tick" style="font-size: 58px; color: #ffd54f; filter: drop-shadow(0 0 8px rgba(255, 213, 79, 0.5)); font-weight: bold;">✓</span>
+                      </div>
+                      <div class="shield-wing-l" style="position: absolute; left: -22px; top: 40px; font-size: 28px; opacity: 0.6;">🛡️</div>
+                      <div class="shield-wing-r" style="position: absolute; right: -22px; top: 40px; font-size: 28px; opacity: 0.6; transform: scaleX(-1);">🛡️</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Bank Account Card Group -->
-            <div class="glass-panel profile-form-group-card" style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md);">
-              <h3 class="profile-card-section-title" style="font-size: 15px; color: #fff; margin-bottom: var(--spacing-md); text-align: left; border-left: 3px solid var(--primary); padding-left: 8px;">Tài khoản ngân hàng</h3>
-              <div class="form-group">
-                <label class="form-label">Tên ngân hàng (*)</label>
-                <select class="form-control" id="profile-bankName" style="background-color: var(--surface-container-low); border: 1px solid var(--outline-variant); color: #fff; padding: 12px; border-radius: var(--radius-default); width: 100%;">
-                  <option value="Vietcombank (VCB)">Vietcombank (VCB)</option>
-                  <option value="Techcombank (TCB)">Techcombank (TCB)</option>
-                  <option value="BIDV">BIDV</option>
-                  <option value="VietinBank">VietinBank</option>
-                  <option value="Agribank">Agribank</option>
-                  <option value="MB Bank">MB Bank</option>
-                </select>
+            <!-- SUB-VIEW 2: MANUAL FORM OR VIEW-ONLY PROFILE (Image 2) -->
+            <div id="kyc-sub-form" style="display: none; flex-direction: column; flex: 1;">
+              <div class="profile-section-header" style="margin-bottom: var(--spacing-md);">
+                <h2 style="font-size: 18px; color: #fff; margin: 0; text-align: left;" id="kyc-form-header-title">Thông tin tài khoản</h2>
               </div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); margin-top: var(--spacing-sm);">
-                <div class="form-group" style="margin-bottom: 0;">
-                  <label class="form-label">Tên chủ tài khoản (*)</label>
-                  <input type="text" class="form-control" id="profile-bankOwner" value="NGUYEN VAN A">
+              
+              <!-- Welcome Info Card (Glassmorphic) -->
+              <div class="glass-panel profile-welcome-card" id="kyc-form-welcome" style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.08);">
+                <!-- Populated dynamically -->
+              </div>
+
+              <!-- Personal Info Card Group -->
+              <div class="glass-panel profile-form-group-card" style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md); text-align: left;">
+                <h3 class="profile-card-section-title" style="font-size: 15px; color: #fff; margin-bottom: var(--spacing-md); border-left: 3px solid var(--primary); padding-left: 8px;">Thông tin cá nhân</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                  <div class="form-group">
+                    <label class="form-label">Họ và tên (*)</label>
+                    <input type="text" class="form-control" id="profile-fullName">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Ngày sinh (*)</label>
+                    <input type="date" class="form-control" id="profile-dob">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Địa chỉ email (*)</label>
+                    <div style="position: relative;">
+                      <input type="email" class="form-control" id="profile-email">
+                      <span id="email-check-icon" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #10b981; display: none;">✓</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Số điện thoại (*)</label>
+                    <div style="display: flex; gap: 8px;">
+                      <input type="text" class="form-control" id="profile-phone" style="flex: 1;">
+                      <button class="btn btn-sm btn-glass" type="button" id="btn-manual-otp" onclick="triggerOtpRequest('manual')" style="font-size: 12px; font-weight: 700; border: 1px solid var(--outline-variant); color: var(--primary); padding: 0 12px; white-space: nowrap;">Lấy OTP</button>
+                    </div>
+                  </div>
                 </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                  <label class="form-label">Số tài khoản (*)</label>
-                  <input type="text" class="form-control" id="profile-bankAccount" value="190367266064">
+                <div class="form-group" style="margin-top: var(--spacing-sm); margin-bottom: 0;">
+                  <label class="form-label">Địa chỉ thường trú (*)</label>
+                  <input type="text" class="form-control" id="profile-address" placeholder="Nhập địa chỉ thường trú...">
+                </div>
+              </div>
+
+              <!-- Identity Info Card Group -->
+              <div class="glass-panel profile-form-group-card" style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md); text-align: left;">
+                <h3 class="profile-card-section-title" style="font-size: 15px; color: #fff; margin-bottom: var(--spacing-md); border-left: 3px solid var(--primary); padding-left: 8px;">Thông tin định danh</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                  <div class="form-group">
+                    <label class="form-label">Số CCCD (*)</label>
+                    <input type="text" class="form-control" id="profile-idCard">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Ngày cấp (*)</label>
+                    <input type="date" class="form-control" id="profile-idDate" value="2021-09-15">
+                  </div>
+                </div>
+                <div class="form-group" style="margin-top: var(--spacing-sm); margin-bottom: var(--spacing-md);">
+                  <label class="form-label">Nơi cấp (*)</label>
+                  <input type="text" class="form-control" id="profile-idPlace" value="Cục Cảnh sát Quản lý hành chính về trật tự xã hội">
+                </div>
+
+                <!-- Manual Photo Upload Cards -->
+                <div id="manual-form-photo-uploads" style="margin-bottom: 0;">
+                  <label class="form-label" style="margin-bottom: var(--spacing-sm);">Ảnh CCCD mặt trước & mặt sau (*)</label>
+                  <div class="kyc-cards-row" style="margin-bottom: 0;">
+                    <div class="kyc-upload-card" onclick="triggerManualKYCUpload('front')" id="cccd-front-card" style="position: relative;">
+                      <div class="kyc-upload-icon">⬆</div>
+                      <div class="kyc-upload-title" style="font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px;">Tải lên</div>
+                      <div class="kyc-upload-desc" style="font-size: 11px; color: var(--on-surface-variant);">Ảnh CCCD mặt trước (*)</div>
+                      <div id="front-loaded-visual" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,230,118,0.12); display: flex; align-items: center; justify-content: center; font-weight:700; color:var(--tertiary);">✓ Đã tải ảnh lên</div>
+                    </div>
+                    <div class="kyc-upload-card" onclick="triggerManualKYCUpload('back')" id="cccd-back-card" style="position: relative;">
+                      <div class="kyc-upload-icon">⬆</div>
+                      <div class="kyc-upload-title" style="font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px;">Tải lên</div>
+                      <div class="kyc-upload-desc" style="font-size: 11px; color: var(--on-surface-variant);">Ảnh CCCD mặt sau (*)</div>
+                      <div id="back-loaded-visual" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,230,118,0.12); display: flex; align-items: center; justify-content: center; font-weight:700; color:var(--tertiary);">✓ Đã tải ảnh lên</div>
+                    </div>
+                  </div>
+                  <div style="text-align: left; margin-top: 8px;">
+                    <a href="javascript:void(0)" onclick="showToast('Hướng dẫn', 'Vui lòng tải ảnh rõ nét, không bị lóa, không mất góc.', 'warning')" style="font-size: 12.5px; color: var(--primary); text-decoration: underline;">Hướng dẫn tải ảnh Căn cước công dân</a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bank Account Card Group -->
+              <div class="glass-panel profile-form-group-card" style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md); text-align: left;">
+                <h3 class="profile-card-section-title" style="font-size: 15px; color: #fff; margin-bottom: var(--spacing-md); border-left: 3px solid var(--primary); padding-left: 8px;">Tài khoản ngân hàng</h3>
+                <div class="form-group">
+                  <label class="form-label">Tên ngân hàng (*)</label>
+                  <select class="form-control" id="profile-bankName" style="background-color: var(--surface-container-low); border: 1px solid var(--outline-variant); color: #fff; padding: 12px; border-radius: var(--radius-default); width: 100%;">
+                    <option value="">Chọn tên ngân hàng</option>
+                    <option value="Vietcombank (VCB)">Vietcombank (VCB)</option>
+                    <option value="Techcombank (TCB)">Techcombank (TCB)</option>
+                    <option value="BIDV">BIDV</option>
+                    <option value="VietinBank">VietinBank</option>
+                    <option value="Agribank">Agribank</option>
+                    <option value="MB Bank">MB Bank</option>
+                  </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); margin-top: var(--spacing-sm);">
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Tên chủ tài khoản (*)</label>
+                    <input type="text" class="form-control" id="profile-bankOwner" placeholder="Nhập tên chủ tài khoản">
+                  </div>
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Số tài khoản (*)</label>
+                    <input type="text" class="form-control" id="profile-bankAccount" placeholder="Nhập số tài khoản">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Manual Form Actions -->
+              <div style="display: flex; justify-content: flex-end; gap: var(--spacing-md); margin-top: var(--spacing-md);" id="kyc-form-actions-row">
+                <button class="btn" onclick="switchToKycLanding()" style="background: rgba(255,255,255,0.05); border: 1px solid var(--outline-variant); color: #fff; font-weight: 700; padding: 10px 24px; border-radius: var(--radius-full); font-size: 13.5px;">Quay lại</button>
+                <button class="btn btn-primary" onclick="submitManualKycForm()" style="background: #13a059; border-color: #13a059; color: #fff; font-weight: 700; padding: 10px 28px; border-radius: var(--radius-full); font-size: 13.5px;">Hoàn tất</button>
+              </div>
+            </div>
+
+            <!-- SUB-VIEW 3: VNeID STEPPER WORKFLOW (Image 3) -->
+            <div id="kyc-sub-vneid-stepper" style="display: none; flex-direction: column; flex: 1;">
+              <div class="profile-section-header" style="margin-bottom: var(--spacing-md);">
+                <h2 style="font-size: 18px; color: #fff; margin: 0; text-align: left;">Xác thực tài khoản</h2>
+              </div>
+              
+              <!-- Stepper progress bar -->
+              <div class="glass-panel kyc-stepper-container" style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md) var(--spacing-xl); display: flex; align-items: center; justify-content: center; gap: var(--spacing-md); background: rgba(30, 136, 229, 0.03); border-color: rgba(30, 136, 229, 0.08);">
+                <div class="stepper-step active" style="display: flex; align-items: center; gap: 8px;">
+                  <span class="step-num" style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #13a059; color: #fff; font-size: 12px; font-weight: 800;">1</span>
+                  <span class="step-title" style="color: #fff; font-size: 13px; font-weight: 700;">Thông tin cá nhân</span>
+                </div>
+                <div class="stepper-line" style="flex: 0 0 100px; height: 2px; background: rgba(255,255,255,0.1);"></div>
+                <div class="stepper-step" style="display: flex; align-items: center; gap: 8px; opacity: 0.5;">
+                  <span class="step-num" style="display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.1); color: #fff; font-size: 12px; font-weight: 800;">2</span>
+                  <span class="step-title" style="color: #fff; font-size: 13px; font-weight: 700;">Xác thực VNeID</span>
+                </div>
+              </div>
+
+              <!-- Stepper Step 1 Contents -->
+              <div id="vneid-step1-body" style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+                
+                <!-- Personal Info Card -->
+                <div class="glass-panel profile-form-group-card" style="padding: var(--spacing-md); text-align: left;">
+                  <h3 class="profile-card-section-title" style="font-size: 15px; color: #fff; margin-bottom: var(--spacing-md); border-left: 3px solid var(--primary); padding-left: 8px;">Thông tin cá nhân</h3>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); margin-bottom: var(--spacing-sm);">
+                    <div class="form-group" style="grid-column: span 2;">
+                      <label class="form-label">Số căn cước công dân (*)</label>
+                      <input type="text" class="form-control" id="vneid-idCard" placeholder="Nhập số căn cước công dân">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Số điện thoại (*)</label>
+                      <div style="display: flex; gap: 8px;">
+                        <input type="text" class="form-control" id="vneid-phone" placeholder="Nhập số điện thoại" style="flex: 1;">
+                        <button class="btn btn-sm btn-glass" type="button" id="btn-vneid-otp" onclick="triggerOtpRequest('vneid')" style="font-size: 12px; font-weight: 700; border: 1px solid var(--outline-variant); color: var(--primary); padding: 0 12px; white-space: nowrap;">Lấy OTP</button>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Email (*)</label>
+                      <div style="position: relative;">
+                        <input type="email" class="form-control" id="vneid-email" placeholder="ngoctam.vinhcity@gmail.com">
+                        <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #10b981;">✓</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Tải ảnh CCCD Card -->
+                <div class="glass-panel profile-form-group-card" style="padding: var(--spacing-md); text-align: left;">
+                  <h3 class="profile-card-section-title" style="font-size: 15px; color: #fff; margin-bottom: var(--spacing-md); border-left: 3px solid var(--primary); padding-left: 8px;">Tải ảnh căn cước công dân</h3>
+                  <div class="kyc-cards-row" style="margin-bottom: 0;">
+                    <div class="kyc-upload-card" onclick="triggerManualKYCUpload('vneid-front')" id="cccd-vneid-front-card" style="position: relative;">
+                      <div class="kyc-upload-icon">⬆</div>
+                      <div class="kyc-upload-title" style="font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px;">Tải lên</div>
+                      <div class="kyc-upload-desc" style="font-size: 11px; color: var(--on-surface-variant);">Ảnh CCCD mặt trước (*)</div>
+                      <div id="vneid-front-loaded-visual" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,230,118,0.12); display: flex; align-items: center; justify-content: center; font-weight:700; color:var(--tertiary);">✓ Đã tải ảnh lên</div>
+                    </div>
+                    <div class="kyc-upload-card" onclick="triggerManualKYCUpload('vneid-back')" id="cccd-vneid-back-card" style="position: relative;">
+                      <div class="kyc-upload-icon">⬆</div>
+                      <div class="kyc-upload-title" style="font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px;">Tải lên</div>
+                      <div class="kyc-upload-desc" style="font-size: 11px; color: var(--on-surface-variant);">Ảnh CCCD mặt sau (*)</div>
+                      <div id="vneid-back-loaded-visual" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,230,118,0.12); display: flex; align-items: center; justify-content: center; font-weight:700; color:var(--tertiary);">✓ Đã tải ảnh lên</div>
+                    </div>
+                  </div>
+                  <div style="text-align: left; margin-top: 8px;">
+                    <a href="javascript:void(0)" onclick="showToast('Hướng dẫn', 'Vui lòng tải ảnh rõ nét, không bị lóa, không mất góc.', 'warning')" style="font-size: 12.5px; color: var(--primary); text-decoration: underline;">Hướng dẫn tải ảnh Căn cước công dân</a>
+                  </div>
+                </div>
+
+                <!-- Tài khoản ngân hàng Card -->
+                <div class="glass-panel profile-form-group-card" style="padding: var(--spacing-md); text-align: left;">
+                  <h3 class="profile-card-section-title" style="font-size: 15px; color: #fff; margin-bottom: var(--spacing-md); border-left: 3px solid var(--primary); padding-left: 8px;">Tài khoản ngân hàng</h3>
+                  <div class="form-group">
+                    <label class="form-label">Tên ngân hàng (*)</label>
+                    <select class="form-control" id="vneid-bankName" style="background-color: var(--surface-container-low); border: 1px solid var(--outline-variant); color: #fff; padding: 12px; border-radius: var(--radius-default); width: 100%;">
+                      <option value="">Chọn tên ngân hàng</option>
+                      <option value="Vietcombank (VCB)">Vietcombank (VCB)</option>
+                      <option value="Techcombank (TCB)">Techcombank (TCB)</option>
+                      <option value="BIDV">BIDV</option>
+                      <option value="VietinBank">VietinBank</option>
+                      <option value="Agribank">Agribank</option>
+                      <option value="MB Bank">MB Bank</option>
+                    </select>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); margin-top: var(--spacing-sm);">
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label class="form-label">Tên chủ tài khoản (*)</label>
+                      <input type="text" class="form-control" id="vneid-bankOwner" placeholder="Nhập tên chủ tài khoản">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                      <label class="form-label">Số tài khoản (*)</label>
+                      <input type="text" class="form-control" id="vneid-bankAccount" placeholder="Nhập số tài khoản">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Stepper Step 1 Actions -->
+                <div style="display: flex; justify-content: flex-end; gap: var(--spacing-md); margin-top: var(--spacing-md);">
+                  <button class="btn" onclick="switchToKycLanding()" style="background: rgba(255,255,255,0.05); border: 1px solid var(--outline-variant); color: #fff; font-weight: 700; padding: 10px 24px; border-radius: var(--radius-full); font-size: 13.5px;">Quay lại</button>
+                  <button class="btn btn-primary" onclick="continueKycVNeIDStepper()" style="background: #13a059; border-color: #13a059; color: #fff; font-weight: 700; padding: 10px 28px; border-radius: var(--radius-full); font-size: 13.5px;">Tiếp tục</button>
                 </div>
               </div>
             </div>
-            
-            <div style="text-align: right; margin-top: var(--spacing-md);">
-              <button class="btn btn-primary" onclick="handleProfileSave()">LƯU THÔNG TIN CÁ NHÂN</button>
-            </div>
+
           </div>
 
           <!-- SECTION B: CART / REGISTERED AUCTIONS & DEPOSITS -->

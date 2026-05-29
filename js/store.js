@@ -78,15 +78,15 @@ const CustomerDB = {
     // Standard mock account as shown in Screen I.a CCCD wireframe
     this.state.currentUser = {
       username: username || "0367266064",
-      fullName: "Nguyễn Văn A",
-      email: "taikhoandemo1@gmail.com",
+      fullName: "Mr Ba (Mr Ba)",
+      email: "ngoctam.vinhcity@gmail.com",
       phone: username || "0367266064",
       idCard: "001095009982",
-      address: "Số 15 Phố Huế, Bùi Thị Xuân, Hai Bà Trưng, Hà Nội",
+      address: "Vinh City, Nghệ An",
       kycStatus: "UNVERIFIED", // UNVERIFIED, WAITING_APPROVAL, APPROVED_CCCD, APPROVED_VNeID
       bankName: "Vietcombank (VCB)",
       bankAccount: "190367266064",
-      bankOwner: "NGUYEN VAN A"
+      bankOwner: "MR BA"
     };
     this.save();
     return this.state.currentUser;
@@ -101,16 +101,24 @@ const CustomerDB = {
   updateKYCVNeID() {
     if (!this.state.currentUser) return false;
     this.state.currentUser.kycStatus = "APPROVED_VNeID";
-    this.state.currentUser.fullName = "Nguyễn Văn A";
+    this.state.currentUser.fullName = "Mr Ba (Mr Ba)";
     this.state.currentUser.idCard = "001095009982";
-    this.state.currentUser.address = "Hà Nội, Việt Nam";
+    this.state.currentUser.address = "Vinh City, Nghệ An";
     this.save();
     return true;
   },
 
-  updateKYCManual(frontImg, backImg, portraitImg) {
+  updateKYCManual(fullName, email, phone, address, idCard, idDate, idPlace, bankName, bankOwner, bankAccount) {
     if (!this.state.currentUser) return false;
     this.state.currentUser.kycStatus = "APPROVED_CCCD";
+    if (fullName) this.state.currentUser.fullName = fullName;
+    if (email) this.state.currentUser.email = email;
+    if (phone) this.state.currentUser.phone = phone;
+    if (address) this.state.currentUser.address = address;
+    if (idCard) this.state.currentUser.idCard = idCard;
+    if (bankName) this.state.currentUser.bankName = bankName;
+    if (bankOwner) this.state.currentUser.bankOwner = bankOwner;
+    if (bankAccount) this.state.currentUser.bankAccount = bankAccount;
     this.save();
     return true;
   },

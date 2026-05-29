@@ -3555,5 +3555,34 @@ footer {
   }
 }
 
+/* --- High Fidelity eKYC and Stepper Graphic Rules --- */
+@keyframes shieldFloat {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(1deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.kyc-unverified-card {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: var(--radius-lg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+.kyc-stepper-container {
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Form disabled view visual enhancements */
+.form-control:disabled, select.form-control:disabled {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
 
 
