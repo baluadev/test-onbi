@@ -1,0 +1,78 @@
+/* Importing Premium Typography from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Sora:wght@100..800&display=swap');
+
+:root {
+  /* Gilded Hammer Sleek Enterprise Dark Theme Colors */
+  --bg-color: #0b0f19;
+  --surface: #0b0f19;
+  --surface-dim: #0b0f19;
+  --surface-bright: #222c43;
+  --surface-container-lowest: #05070b;
+  --surface-container-low: #101625;
+  --surface-container: #151e32;
+  --surface-container-high: #1e2942;
+  --surface-container-highest: #283655;
+  
+  --on-surface: #eaeff8;
+  --on-surface-variant: #a3b4cc;
+  --inverse-surface: #eaeff8;
+  --inverse-on-surface: #1a233a;
+  --outline: #687f9e;
+  --outline-variant: #3d4f6e;
+  --surface-tint: #d4af37;
+  
+  --primary: #d4af37;             /* Gold Accent */
+  --primary-glow: rgba(212, 175, 55, 0.15);
+  --on-primary: #1e1500;
+  --primary-container: #b59424;
+  --on-primary-container: #ffe899;
+  --inverse-primary: #856a00;
+  
+  --secondary: #ffb800;           /* Amber Visual */
+  --secondary-glow: rgba(255, 184, 0, 0.2);
+  --on-secondary: #241900;
+  --secondary-container: #ffc83b;
+  --on-secondary-container: #3c2800;
+  
+  --tertiary: #00e676;            /* Neon Green status indicator */
+  --tertiary-glow: rgba(0, 230, 118, 0.2);
+  --on-tertiary: #00220b;
+  --tertiary-container: #00a34f;
+  --on-tertiary-container: #b3ffd1;
+  
+  --error: #ff6b6b;               /* Warning Red */
+  --error-glow: rgba(255, 107, 107, 0.2);
+  --on-error: #4c0000;
+  --error-container: #d63030;
+  --on-error-container: #ffd1d1;
+  
+  /* Fonts */
+  --font-display: 'Sora', 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  /* Border Radii */
+  --radius-sm: 4px;
+  --radius-default: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+  
+  /* Spacings */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 48px;
+  
+  /* Glassmorphism Styles */
+  --glass-bg: rgba(21, 30, 50, 0.7);
+  --glass-bg-highest: rgba(40, 54, 85, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: blur(16px);
+  --shadow-premium: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  
+  /* Theme Transition */
+  --transition-speed: 0.25s;
+}

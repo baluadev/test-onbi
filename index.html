@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ONBI AUCTION | Cổng Khách Hàng Đấu Giá</title>
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Toast Notification System -->
+  <div id="toast-container"></div>
+
+  <!-- Main SPA Application Shell -->
+  <div id="app-shell">
+
+    <!-- Sticky Header Navbar -->
+    <header id="app-header" style="display: none;">
+      <div class="navbar">
+        <div class="logo" onclick="appRouter.navigate('homepage')">
+          <div class="logo-icon">🏛️</div>
+          <span>ONBI AUCTION</span>
+        </div>
+        
+        <ul class="nav-menu">
+          <li class="nav-link active" onclick="appRouter.navigate('homepage')" data-route="homepage">Trang chủ</li>
+          <li class="nav-link" onclick="appRouter.navigate('search')" data-route="search">Cuộc đấu giá</li>
+          <li class="nav-link" onclick="appRouter.navigate('rooms')" data-route="rooms">Phòng đấu giá</li>
+          <li class="nav-link" onclick="openGlobalNewsModal()">Tin tức & Thông báo</li>
+          <li class="nav-link" onclick="alert('ONBI AUCTION là cổng đấu giá tài sản trực tuyến hàng đầu, vận hành chính quy và công khai.')">Về chúng tôi</li>
+        </ul>
+
+        <div class="nav-actions">
+          <!-- Real-time Dynamic Clock -->
+          <div class="header-clock" id="header-clock">
+            <span class="clock-icon">🕒</span>
+            <div class="clock-time-wrapper">
+              <span class="clock-time" id="header-clock-time">--:--:--</span>
+              <span class="clock-date" id="header-clock-date">--/--/----</span>
+            </div>
+          </div>
+
+          <!-- Guest Actions -->
+          <div id="header-guest-actions" style="display: flex; gap: var(--spacing-sm);">
+            <button class="btn btn-register" onclick="appRouter.navigate('login', 'register')">Đăng ký</button>
+            <button class="btn btn-login" onclick="appRouter.navigate('login', 'signin')">Đăng nhập</button>
+          </div>
+
+          <!-- User Session Widget -->
+          <div id="header-user-actions" style="display: none; align-items: center; gap: var(--spacing-md);">
+            <div class="user-widget" id="header-user-widget" onclick="appRouter.navigate('profile', 'kyc')">
+              <div class="user-avatar" id="header-avatar">A</div>
+              <div class="user-info">
+                <span class="user-name" id="header-username">Nguyễn Văn A</span>
+                <span class="user-role" id="header-kyc-badge">Đang xác thực...</span>
+              </div>
+            </div>
+            <button class="btn btn-glass" style="padding: 8px 12px; font-size: 12px;" onclick="handleLogout()">Đăng xuất</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- VIEW 1: LOGIN / REGISTER PAGE VIEW -->
+    <div id="login-view" class="view-container">
+      <div class="login-layout">
+        <!-- Left Panel: Graphic & Arts -->
+        <div class="login-art-panel">
+          <div class="gavel-graphic">🔨</div>
+          <h2 class="login-art-title">HỆ THỐNG ĐẤU GIÁ TRỰC TUYẾN</h2>
+          <p class="login-art-desc">Sàn thầu thời gian thực thế hệ mới, tích hợp định danh điện tử VNeID quốc gia và đối soát cọc tự động bảo mật cao.</p>
+        </div>
+        
+        <!-- Right Panel: Credentials -->
+        <div class="login-form-panel" id="login-container">
+          <div class="login-header">
+            <h1 class="login-title">ĐĂNG NHẬP HỆ THỐNG</h1>
+            <p class="login-subtitle">Chào mừng bạn quay lại. Vui lòng điền thông tin truy cập.</p>
+          </div>
+
+          <div class="login-tabs">
+            <div class="login-tab active" onclick="switchLoginTab('individual')" id="tab-ind">Cá nhân</div>
+            <div class="login-tab" onclick="switchLoginTab('corporate')" id="tab-corp">Doanh nghiệp</div>
+          </div>
+
+          <!-- Individual / Corporate Form Wrapper -->
+          <form id="auth-form" onsubmit="event.preventDefault(); triggerSMSVerification();">
+            <div class="form-group">
+              <label class="form-label" id="label-login-user">Số điện thoại hoặc Email</label>
+              <input type="text" class="form-control" id="login-input-phone" placeholder="Nhập số điện thoại (VD: 0367266064)..." value="0367266064" required>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Mật khẩu</label>
+              <input type="password" class="form-control" id="login-input-pass" placeholder="••••••••" value="Abc@123z" required>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); font-size: 13px;">
+              <label class="filter-checkbox-label">
+                <input type="checkbox" checked> Ghi nhớ phiên đăng nhập
+              </label>
+              <a href="#" style="color: var(--primary);">Quên mật khẩu?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 15px; margin-bottom: var(--spacing-md);">
+              TIẾP TỤC ĐĂNG NHẬP 
+            </button>
+            
+            <button type="button" class="btn btn-glass" style="width: 100%; padding: 12px; font-size: 14px;" onclick="simulateVNeIDInstantLogin()">
+              🚀 LIÊN KẾT ĐĂNG NHẬP VNeID 
+            </button>
+          </form>
+
+          <p style="font-size: 13px; color: var(--on-surface-variant); margin-top: var(--spacing-lg); text-align: center;">
+            Chưa có tài khoản đăng ký? <a onclick="appRouter.navigate('login', 'register')" style="color: var(--primary); font-weight: 700; cursor: pointer;">Tạo tài khoản mới</a>
+          </p>
+        </div>
+
+        <!-- Right Panel: Registration Form -->
+        <div class="login-form-panel" id="register-container" style="display: none;">
+          <div class="login-header">
+            <h1 class="login-title" id="register-title">ĐĂNG KÝ TÀI KHOẢN CÁ NHÂN</h1>
+            <p class="login-subtitle">Vui lòng điền đầy đủ thông tin để khởi tạo tài khoản mới.</p>
+          </div>
+
+          <div class="login-tabs">
+            <div class="login-tab active" onclick="switchRegisterTab('individual')" id="reg-tab-ind">
+              👤 Cá nhân
+            </div>
+            <div class="login-tab" onclick="switchRegisterTab('corporate')" id="reg-tab-corp">
+              🏢 Doanh nghiệp
+            </div>
+          </div>
+
+          <form id="register-form" onsubmit="event.preventDefault(); handleRegisterSubmit();">
+            <div class="form-group">
+              <label class="form-label">Họ và tên</label>
+              <input type="text" class="form-control" id="register-name" placeholder="Nhập họ và tên..." required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" id="label-register-user">Số điện thoại hoặc Email</label>
+              <input type="text" class="form-control" id="register-user" placeholder="Nhập số điện thoại hoặc email..." required>
+            </div>
+            
+            <div class="form-group" style="position: relative;">
+              <label class="form-label">Mật khẩu</label>
+              <input type="password" class="form-control" id="register-pass" placeholder="Nhập mật khẩu..." required>
+              <span class="password-toggle-icon" onclick="togglePassVisibility('register-pass')">👁️</span>
+            </div>
+
+            <div class="form-group" style="position: relative;">
+              <label class="form-label">Nhập lại mật khẩu</label>
+              <input type="password" class="form-control" id="register-pass-confirm" placeholder="Nhập lại mật khẩu..." required>
+              <span class="password-toggle-icon" onclick="togglePassVisibility('register-pass-confirm')">👁️</span>
+            </div>
+
+            <div class="form-group">
+              <label class="filter-checkbox-label" style="align-items: flex-start; gap: 8px;">
+                <input type="checkbox" id="register-agreement" required style="margin-top: 3px;">
+                <span style="font-size: 12px; line-height: 1.4; color: var(--on-surface-variant);">
+                  Tôi cam kết tuân thủ quyền và trách nhiệm của người tham gia đấu giá, chính sách và mọi <a href="#" style="color: var(--primary);">Điều khoản dịch vụ</a> tại website đấu giá trực tuyến onbi.vn
+                </span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 15px; margin-bottom: var(--spacing-md);">
+              TẠO TÀI KHOẢN
+            </button>
+          </form>
+
+          <p style="font-size: 13px; color: var(--on-surface-variant); margin-top: var(--spacing-lg); text-align: center;">
+            Đã có tài khoản? <a onclick="appRouter.navigate('login', 'signin')" style="color: var(--primary); font-weight: 700; cursor: pointer;">Đăng nhập</a>
+          </p>
+
+          <div style="display: flex; align-items: center; justify-content: center; margin: 16px 0; font-size: 12px; color: var(--outline);">
+            <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.05);"></div>
+            <span style="padding: 0 10px;">Hoặc tiếp tục với</span>
+            <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.05);"></div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-sm);">
+            <button type="button" class="btn btn-glass" style="padding: 10px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="simulateGoogleLogin()">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" style="width: 14px; height: 14px;" alt="Google"> Google
+            </button>
+            <button type="button" class="btn btn-glass" style="padding: 10px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="simulateVNeIDInstantLogin()">
+              <span style="font-size: 14px;">🛡️</span> VNeID
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: HOMEPAGE LANDING VIEW -->
+    <div id="homepage-view" class="view-container">
+      
+      <!-- Hero Banner -->
+      <section class="hero-section">
+        <h1 class="hero-title">CỔNG THÔNG TIN ĐẤU GIÁ TRỰC TUYẾN ONBI AUCTION</h1>
+        <p class="hero-subtitle">Tìm kiếm và tham gia đấu giá hàng ngàn tài sản giá trị lớn.</p>
+        
+        <div class="search-container">
+          <input type="text" class="search-input" id="home-search-input" placeholder="Tìm kiếm nhanh tài sản, đất nền, xe cộ, tranh cổ..." onkeyup="if(event.key === 'Enter') handleHomeSearch()">
+          <button class="btn btn-primary" style="border-radius: var(--radius-md); padding: 12px 28px;" onclick="handleHomeSearch()">TÌM KIẾM</button>
+        </div>
+
+        <div class="quick-tags">
+          <span class="quick-tags-label">Tìm nhanh:</span>
+          <span class="quick-tag" onclick="handleQuickTagClick('dat')">Đất nền Hoài Đức</span>
+          <span class="quick-tag" onclick="handleQuickTagClick('tranh')">Tranh cổ sơn mài</span>
+          <span class="quick-tag" onclick="handleQuickTagClick('xe')">Xe Lexus thanh lý</span>
+        </div>
+      </section>
+
+      <!-- Featured Categories Circles -->
+      <section class="categories-section">
+        <div class="categories-container" id="home-categories-list">
+          <!-- Populated by data.js -->
+        </div>
+      </section>
+
+      <!-- VNeID Identity Verification Banner -->
+      <section class="vneid-section">
+        <div class="vneid-banner">
+          <div class="vneid-banner-left">
+            <div class="vneid-phone-mockups">
+              <!-- Back Phone Mockup -->
+              <div class="vneid-phone back-phone">
+                <div class="vneid-phone-speaker"></div>
+                <div class="vneid-phone-screen">
+                  <div class="vneid-app-header">
+                    <span class="vneid-app-logo">🛡️ VNeID</span>
+                    <span class="vneid-app-time">09:41</span>
+                  </div>
+                  <div class="vneid-card-visual">
+                    <div class="vneid-card-header">CĂN CƯỚC CÔNG DÂN</div>
+                    <div class="vneid-card-body">
+                      <div class="vneid-card-avatar">👤</div>
+                      <div class="vneid-card-info">
+                        <div class="vneid-line long"></div>
+                        <div class="vneid-line short"></div>
+                        <div class="vneid-line medium"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="vneid-status-badge verified">✓ ĐÃ XÁC THỰC MỨC 2</div>
+                </div>
+              </div>
+              <!-- Front Phone Mockup -->
+              <div class="vneid-phone front-phone">
+                <div class="vneid-phone-speaker"></div>
+                <div class="vneid-phone-screen">
+                  <div class="vneid-app-header">
+                    <span class="vneid-app-logo">🏛️ ONBI</span>
+                    <span class="vneid-app-time">09:41</span>
+                  </div>
+                  <div class="vneid-ekyc-step">
+                    <div class="vneid-ekyc-icon">⚡</div>
+                    <div class="vneid-ekyc-title">Liên Kết VNeID</div>
+                    <p class="vneid-ekyc-desc">Xác thực tài khoản chính chủ qua cơ sở dữ liệu quốc gia</p>
+                  </div>
+                  <div class="vneid-ekyc-check">✓ Sẵn sàng đấu thầu</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="vneid-banner-center">
+            <div class="vneid-badge-wrapper">
+              <span class="vneid-glow-badge">🛡️ Định danh điện tử quốc gia</span>
+            </div>
+            <h2 class="vneid-banner-title">Xác thực tài khoản với VNeID</h2>
+            <p class="vneid-banner-desc">Hệ thống đấu giá trực tuyến của <strong>ONBI</strong> đã kết nối với <strong>VNeID</strong> (cơ sở dữ liệu Quốc gia về dân cư của bộ Công An) để xác thực tài khoản đấu giá trực tuyến.</p>
+          </div>
+
+          <div class="vneid-banner-right">
+            <button class="btn btn-primary vneid-banner-btn" onclick="appRouter.navigate('profile', 'kyc')">
+              <span>Khám phá ngay</span>
+              <span class="btn-arrow">→</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Active Auctions Section -->
+      <section class="content-section">
+        <div class="section-title">
+          <h2>TÀI SẢN ĐANG DIỄN RA PHIÊN ĐẤU GIÁ</h2>
+          <span style="font-size: 13px; color: var(--primary); cursor: pointer;" onclick="appRouter.navigate('search')">Xem tất cả tài sản &gt;</span>
+        </div>
+        <div class="assets-grid" id="home-live-assets">
+          <!-- Rendered live -->
+        </div>
+      </section>
+
+      <!-- Upcoming Auctions Section -->
+      <section class="content-section" style="margin-bottom: var(--spacing-xl);">
+        <div class="section-title">
+          <h2>TÀI SẢN SẮP MỞ PHÒNG TRẢ GIÁ</h2>
+        </div>
+        <div class="assets-grid" id="home-upcoming-assets">
+          <!-- Rendered live -->
+        </div>
+      </section>
+
+      <!-- Download App Banner with QR codes -->
+      <section class="content-section">
+        <div class="download-banner">
+          <div class="download-text-col">
+            <h2 class="download-title">Trải nghiệm thầu trên ứng dụng di động</h2>
+            <p class="download-desc">Quét mã QR tải app ONBI AUCTION trên App Store và Google Play để nhận thông báo bảng nhảy thầu thời gian thực siêu mượt mà dưới 100ms.</p>
+            <div class="download-qrs">
+              <div style="text-align: center;">
+                <div class="qr-container">
+                  <img class="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://sandaugia.vn/download/app" alt="App QR">
+                </div>
+                <span style="font-size: 11px; color: var(--on-surface-variant); margin-top: 4px; display: block;">Tải App iOS / Android</span>
+              </div>
+              <div class="download-app-badges">
+                <div class="download-badge">
+                  <span class="download-badge-icon">🍏</span>
+                  <div>
+                    <div class="download-badge-sub">Tải ngay trên</div>
+                    <div class="download-badge-main">App Store</div>
+                  </div>
+                </div>
+                <div class="download-badge">
+                  <span class="download-badge-icon">🤖</span>
+                  <div>
+                    <div class="download-badge-sub">Tải ngay trên</div>
+                    <div class="download-badge-main">Google Play</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="download-img-col">
+            <div class="download-phone-mockup">
+              <div class="download-phone-screen">
+                <div style="font-size: 8px; font-weight: 700; color: var(--primary); display: flex; justify-content: space-between; margin-bottom: 8px;">
+                  <span>ONBI MOBILE</span>
+                  <span>10:45 AM</span>
+                </div>
+                <div style="background: rgba(212,175,55,0.1); border: 1px solid var(--primary); border-radius: 4px; padding: 6px; text-align: center; margin-bottom: 6px;">
+                  <span style="font-size: 8px; font-weight: 800; color: var(--primary);">PHÒNG ĐẤU GIÁ ĐANG CHẠY</span>
+                  <div style="font-size: 14px; font-weight: 800; color: #ffb800; font-family: var(--font-mono); margin: 2px 0;">00:01:45</div>
+                </div>
+                <div style="font-size: 9px; font-weight: bold; margin-bottom: 4px;">Đất nền Lô A2 Hoài Đức</div>
+                <div style="font-size: 7px; color: var(--on-surface-variant); margin-bottom: 6px;">Giá hiện tại: 4,350,000,000đ</div>
+                <div style="background: rgba(255,255,255,0.03); border-radius: 4px; padding: 4px; flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 4px; font-size: 6px; margin-bottom: 6px;">
+                  <div style="display: flex; justify-content: space-between; color: var(--primary);"><span style="font-weight:bold;">BID_9912 (Bạn)</span><span>4.400.000.000đ</span></div>
+                  <div style="display: flex; justify-content: space-between; color: #a3b4cc;"><span>BID_9915</span><span>4.350.000.000đ</span></div>
+                  <div style="display: flex; justify-content: space-between; color: #a3b4cc;"><span>BID_9916</span><span>4.300.000.000đ</span></div>
+                </div>
+                <button style="background: var(--primary); color: #000; border: none; padding: 6px; font-size: 8px; font-weight: bold; border-radius: 4px;">ĐẶT GIÁ TIẾP THEO (+50TR)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Statistical Cards / Numbers -->
+      <section class="content-section testimonials-section">
+        <div class="glass-panel stat-card">
+          <div class="stat-value">148,250+</div>
+          <div class="stat-label">Khách hàng Đăng ký thầu</div>
+        </div>
+        <div class="glass-panel stat-card">
+          <div class="stat-value">99.86%</div>
+          <div class="stat-label">Tỷ lệ đấu giá thành công</div>
+        </div>
+        <div class="glass-panel stat-card">
+          <div class="stat-value">12.65 Tỷ VNĐ+</div>
+          <div class="stat-label">Tổng giá trị giao dịch thầu</div>
+        </div>
+      </section>
+
+      <!-- SECTION 1: Dễ dàng tham gia đấu giá (Workflow Steps) -->
+      <section class="content-section workflow-section">
+        <div class="section-title-centered">
+          <h2>Dễ dàng tham gia đấu giá</h2>
+          <p class="section-subtitle">Chỉ với 4 bước đơn giản, bạn đã có thể sở hữu những tài sản mong muốn một cách an toàn và hợp pháp.</p>
+        </div>
+        <div class="workflow-grid">
+          <!-- Step 1 -->
+          <div class="glass-card workflow-card">
+            <div class="workflow-icon-wrapper">
+              <span class="workflow-icon">💼</span>
+              <span class="workflow-step-num">01</span>
+            </div>
+            <h3 class="workflow-card-title">Tạo tài khoản & Đăng nhập</h3>
+            <p class="workflow-card-desc">Dễ dàng đăng ký tài khoản và đăng nhập thông qua VNeID, Google hoặc Email, giúp bạn truy cập nhanh chóng và bảo mật.</p>
+          </div>
+          <!-- Step 2 -->
+          <div class="glass-card workflow-card">
+            <div class="workflow-icon-wrapper">
+              <span class="workflow-icon">📱</span>
+              <span class="workflow-step-num">02</span>
+            </div>
+            <h3 class="workflow-card-title">Đăng ký tham gia đấu giá</h3>
+            <p class="workflow-card-desc">Hệ thống hỗ trợ tìm kiếm thông minh theo từng loại tài sản, nhanh chóng tìm được phiên đấu giá phù hợp. Đăng ký tham gia chỉ với một vài thao tác, tiết kiệm thời gian và tối ưu trải nghiệm.</p>
+          </div>
+          <!-- Step 3 -->
+          <div class="glass-card workflow-card">
+            <div class="workflow-icon-wrapper">
+              <span class="workflow-icon">🔨</span>
+              <span class="workflow-step-num">03</span>
+            </div>
+            <h3 class="workflow-card-title">Đấu giá & Trả giá linh hoạt</h3>
+            <p class="workflow-card-desc">Giao diện thân thiện, dễ sử dụng, dù bạn là người mới hay chuyên gia đấu giá. Hỗ trợ đấu giá đồng thời nhiều phiên, giúp bạn không bỏ lỡ cơ hội sở hữu tài sản mong muốn.</p>
+          </div>
+          <!-- Step 4 -->
+          <div class="glass-card workflow-card">
+            <div class="workflow-icon-wrapper">
+              <span class="workflow-icon">🏆</span>
+              <span class="workflow-step-num">04</span>
+            </div>
+            <h3 class="workflow-card-title">Kết thúc & Ký biên bản đấu giá</h3>
+            <p class="workflow-card-desc">Khi phiên đấu giá kết thúc, hệ thống sẽ thông báo kết quả ngay lập tức. Biên bản đấu giá được ký kết trực tuyến, đảm bảo minh bạch và thuận tiện.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: Khách hàng nói về chúng tôi (Testimonials) -->
+      <section class="content-section customer-reviews-section">
+        <div class="section-title-centered">
+          <h2>Khách hàng nói về chúng tôi</h2>
+          <p class="section-subtitle">Sự hài lòng và tin tưởng của khách hàng là động lực to lớn của tập thể đội ngũ ONBI.</p>
+        </div>
+        <div class="reviews-grid">
+          <!-- Review 1 -->
+          <div class="glass-card review-card">
+            <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+            <p class="testimonial-quote">"Tôi đã tham gia nhiều phiên đấu giá tại trang đấu giá trực tuyến của ONBI và thực sự ấn tượng với quy trình minh bạch, công bằng. Nhờ nền tảng hiện đại, tôi dễ dàng đăng ký tài khoản, trả giá và theo dõi các phiên đấu giá một cách thuận lợi."</p>
+            <div class="testimonial-user">
+              <img class="testimonial-avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&h=150&q=80" alt="Lê Minh Thắng">
+              <div class="testimonial-user-info">
+                <span class="testimonial-name">Lê Minh Thắng</span>
+                <span class="testimonial-role">Khách hàng</span>
+              </div>
+            </div>
+          </div>
+          <!-- Review 2 -->
+          <div class="glass-card review-card">
+            <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+            <p class="testimonial-quote">"Tôi thường xuyên sử dụng hệ thống đấu giá của Công ty đấu giá hợp danh ONBI để mua sắm thiết bị cho công ty. Hệ thống hoạt động chuyên nghiệp, giá cả cạnh tranh và luôn có nhiều lựa chọn phù hợp với nhu cầu của doanh nghiệp chúng tôi. Rất hài lòng với dịch vụ!"</p>
+            <div class="testimonial-user">
+              <img class="testimonial-avatar" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&h=150&q=80" alt="Phạm Văn Nam">
+              <div class="testimonial-user-info">
+                <span class="testimonial-name">Phạm Văn Nam</span>
+                <span class="testimonial-role">Khách hàng</span>
+              </div>
+            </div>
+          </div>
+          <!-- Review 3 -->
+          <div class="glass-card review-card">
+            <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+            <p class="testimonial-quote">"Tôi đã tham gia nhiều phiên đấu giá trực tuyến tại Công ty đấu giá hợp danh ONBI và luôn đánh giá cao tính minh bạch, nhanh chóng của hệ thống. Quy trình rõ ràng, đội ngũ hỗ trợ nhiệt tình, giúp tôi yên tâm khi đưa ra quyết định. Đây là đơn vị mà tôi hoàn toàn tin tưởng để hợp tác lâu dài."</p>
+            <div class="testimonial-user">
+              <img class="testimonial-avatar" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&h=150&q=80" alt="Trần Minh Phương">
+              <div class="testimonial-user-info">
+                <span class="testimonial-name">Trần Minh Phương</span>
+                <span class="testimonial-role">Khách hàng</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: Thông báo đấu giá (Auction Notices / News) -->
+      <section class="content-section news-notices-section">
+        <div class="section-title">
+          <h2>Thông báo đấu giá</h2>
+          <span style="font-size: 13px; color: var(--primary); cursor: pointer;" onclick="openNewsDetailModal('NEW-002')">Xem tất cả thông báo &gt;</span>
+        </div>
+        <div class="news-notices-grid">
+          <!-- Notice 1 -->
+          <div class="glass-card news-card" onclick="openNewsDetailModal('NEW-001')">
+            <div class="news-img-wrapper">
+              <img class="news-card-img" src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=400&q=80" alt="Bảo trì VNeID">
+              <div class="news-img-overlay"></div>
+            </div>
+            <div class="news-card-content">
+              <div class="news-card-date">Thông báo • 28/05/2026</div>
+              <h3 class="news-card-title">Thông báo bảo trì hệ thống định danh nâng cấp VNeID</h3>
+              <p class="news-card-desc">Hệ thống sẽ tạm ngừng cổng eKYC thủ công trong 2 giờ để tập trung bảo trì nâng cấp kết nối API VNeID cấp độ 2 quốc gia...</p>
+              <span class="news-card-link">Xem chi tiết <span class="news-arrow">→</span></span>
+            </div>
+          </div>
+          <!-- Notice 2 -->
+          <div class="glass-card news-card" onclick="openNewsDetailModal('NEW-002')">
+            <div class="news-img-wrapper">
+              <img class="news-card-img" src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=400&q=80" alt="Quy chế Anti-Sniping">
+              <div class="news-img-overlay"></div>
+            </div>
+            <div class="news-card-content">
+              <div class="news-card-date">Quy chế pháp lý • 27/05/2026</div>
+              <h3 class="news-card-title">Quy chế phòng chống giật thầu (Anti-Sniping) tự động</h3>
+              <p class="news-card-desc">Chi tiết quy chế cộng thêm 30 giây tự động khi phát sinh trả giá hợp lệ ở 30 giây cuối cùng của phiên đấu thầu trực tuyến...</p>
+              <span class="news-card-link">Xem chi tiết <span class="news-arrow">→</span></span>
+            </div>
+          </div>
+          <!-- Notice 3 -->
+          <div class="glass-card news-card" onclick="openNewsDetailModal('NEW-003')">
+            <div class="news-img-wrapper">
+              <img class="news-card-img" src="https://images.unsplash.com/photo-1560520031-3a4dc4e9de0c?auto=format&fit=crop&w=400&q=80" alt="Đấu giá thành công">
+              <div class="news-img-overlay"></div>
+            </div>
+            <div class="news-card-content">
+              <div class="news-card-date">Tin tức • 25/05/2026</div>
+              <h3 class="news-card-title">Đấu giá thành công lô đất nền Hoài Đức Lô A1 đạt giá kỷ lục</h3>
+              <p class="news-card-desc">Phiên đấu giá Lô đất nền A1 Hoài Đức khép lại thành công rực rỡ với mức giá chốt hợp đồng tăng 45% so với khởi điểm ban đầu...</p>
+              <span class="news-card-link">Xem chi tiết <span class="news-arrow">→</span></span>
+            </div>
+          </div>
+          <!-- Notice 4 -->
+          <div class="glass-card news-card" onclick="openNewsDetailModal('NEW-004')">
+            <div class="news-img-wrapper">
+              <img class="news-card-img" src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=400&q=80" alt="Hướng dẫn VietQR">
+              <div class="news-img-overlay"></div>
+            </div>
+            <div class="news-card-content">
+              <div class="news-card-date">Hướng dẫn • 24/05/2026</div>
+              <h3 class="news-card-title">Các bước đăng ký cọc và nộp tiền VietQR tự động</h3>
+              <p class="news-card-desc">Hướng dẫn chi tiết cách thức quét mã VietQR để thanh toán tiền đặt trước cọc thầu được duyệt tự động cực kỳ nhanh chóng...</p>
+              <span class="news-card-link">Xem chi tiết <span class="news-arrow">→</span></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Landing Page Footer -->
+      <footer-section></footer-section>
+    </div>
+
+    <!-- VIEW 3: SEARCH & FILTER VIEW -->
+    <div id="search-view" class="view-container">
+      <div class="search-view-layout">
+        
+        <!-- Left Filter Sidebar -->
+        <aside class="glass-panel filter-sidebar">
+          <h3 class="filter-title">Bộ lọc tài sản</h3>
+          
+          <div class="filter-section">
+            <h4 class="filter-section-title">Danh mục tài sản</h4>
+            <div class="filter-checkbox-group" id="filter-categories-container">
+              <!-- Rendered dynamic -->
+            </div>
+          </div>
+
+          <div class="filter-section">
+            <h4 class="filter-section-title">Trạng thái phiên</h4>
+            <div class="filter-checkbox-group">
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="status" value="LIVE" checked onchange="handleFilterChange()"> Đang diễn ra (Live)
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="status" value="UPCOMING" checked onchange="handleFilterChange()"> Sắp diễn ra
+              </label>
+              <label class="filter-checkbox-label">
+                <input type="checkbox" name="status" value="ENDED" checked onchange="handleFilterChange()"> Đã kết thúc
+              </label>
+            </div>
+          </div>
+
+          <div class="filter-section">
+            <h4 class="filter-section-title">Khoảng giá khởi điểm (Tỷ VNĐ)</h4>
+            <div class="filter-range-inputs">
+              <input type="number" class="form-control filter-range-control" id="price-min" value="0" min="0" onchange="handleFilterChange()">
+              <span style="color: var(--on-surface-variant)">-</span>
+              <input type="number" class="form-control filter-range-control" id="price-max" value="10" min="0" onchange="handleFilterChange()">
+            </div>
+          </div>
+
+          <button class="btn btn-glass" style="width: 100%; margin-top: var(--spacing-md);" onclick="resetAllFilters()">Xóa tất cả bộ lọc</button>
+        </aside>
+
+        <!-- Right Listings Area -->
+        <main>
+          <div class="results-header">
+            <div class="results-count" id="results-counter">Đang tải danh sách tài sản...</div>
+            <div style="display: flex; gap: var(--spacing-sm); align-items: center;">
+              <span style="font-size: 13px; color: var(--on-surface-variant)">Sắp xếp:</span>
+              <select class="sort-select" id="results-sorting" onchange="handleFilterChange()">
+                <option value="default">Mới nhất</option>
+                <option value="price-asc">Giá tăng dần</option>
+                <option value="price-desc">Giá giảm dần</option>
+                <option value="bids-desc">Nhiều lượt trả giá</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="assets-grid" id="search-assets-grid">
+            <!-- Populated dynamically and filtered in real time! -->
+          </div>
+        </main>
+
+      </div>
+      <footer-section></footer-section>
+    </div>
+
+    <!-- VIEW 4: PROFILE & WORKSPACE PANEL -->
+    <div id="profile-view" class="view-container">
+      <div class="profile-layout">
+        
+        <!-- Left Panel Menu -->
+        <aside class="glass-panel profile-sidebar">
+          <ul class="profile-menu">
+            <li class="profile-menu-item active" onclick="switchProfileSection('kyc')" id="menu-kyc">
+              <span>👤</span> Hồ sơ của tôi
+            </li>
+            <li class="profile-menu-item" onclick="switchProfileSection('cart')" id="menu-cart">
+              <span>💼</span> Giỏ hàng
+            </li>
+            <li class="profile-menu-item" onclick="switchProfileSection('upcoming')" id="menu-upcoming">
+              <span>⏳</span> Tài sản chờ đấu giá
+            </li>
+            <li class="profile-menu-item" onclick="switchProfileSection('favorites')" id="menu-favorites">
+              <span>💖</span> Cuộc đấu giá yêu thích
+            </li>
+            <li class="profile-menu-item" onclick="switchProfileSection('history')" id="menu-history">
+              <span>📄</span> Lịch sử đấu giá
+            </li>
+            <li class="profile-menu-item" onclick="switchProfileSection('security')" id="menu-security">
+              <span>⚙️</span> Thiết lập bảo mật
+            </li>
+          </ul>
+        </aside>
+
+        <!-- Right Panel Content Area -->
+        <main class="glass-panel profile-content">
+          
+          <!-- SECTION A: KYC / PROFILE DETAILS -->
+          <div id="profile-sec-kyc" class="profile-section-wrapper">
+            
+            <!-- Welcome Info Card (Glassmorphic) -->
+            <div class="glass-panel profile-welcome-card" style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--spacing-md); background: rgba(212,175,55,0.03); border-color: rgba(212,175,55,0.15);">
+              <div class="welcome-card-left" style="text-align: left;">
+                <h3 class="welcome-card-title" style="font-size: 17px; color: #fff; margin-bottom: 4px;">Xin chào, <span id="profile-welcome-name" style="color: var(--primary);">Người dùng thầu</span></h3>
+                <p class="welcome-card-sub" style="font-size: 12px; color: var(--on-surface-variant); margin: 0;">Đăng nhập lần cuối: <span id="profile-last-login" style="font-family: var(--font-mono); color: #fff;">10:34:44 29/05/2026 Hanoi, VN</span></p>
+              </div>
+              <div class="welcome-card-center" style="display: flex; gap: var(--spacing-lg);">
+                <div class="welcome-stat-item" style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
+                  <span class="welcome-stat-label" style="font-size: 11px; color: var(--on-surface-variant);">Xác minh danh tính</span>
+                  <span class="badge badge-success" id="profile-kyc-status-badge" style="padding: 2px 6px; font-size: 10px;">✓ Đã xác minh</span>
+                </div>
+                <div class="welcome-stat-item" style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
+                  <span class="welcome-stat-label" style="font-size: 11px; color: var(--on-surface-variant);">Loại tài khoản</span>
+                  <span class="welcome-stat-val" style="font-size: 13px; font-weight: 700; color: #fff;">Cá nhân</span>
+                </div>
+              </div>
+              <div class="welcome-card-right">
+                <button class="btn btn-glass btn-sm" style="padding: 6px 12px; font-size: 12px;" onclick="openModal('modal-change-password')">Thay đổi mật khẩu</button>
+              </div>
+            </div>
+
+            <!-- Personal Info Card Group -->
+            <div class="glass-panel profile-form-group-card" style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md);">
+              <h3 class="profile-card-section-title" style="font-size: 15px; color: #fff; margin-bottom: var(--spacing-md); text-align: left; border-left: 3px solid var(--primary); padding-left: 8px;">Thông tin cá nhân</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                <div class="form-group">
+                  <label class="form-label">Họ và tên (*)</label>
+                  <input type="text" class="form-control" id="profile-fullName" value="Nguyễn Văn A">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Số điện thoại (*)</label>
+                  <input type="text" class="form-control" id="profile-phone" value="0367266064">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Ngày sinh (*)</label>
+                  <input type="date" class="form-control" id="profile-dob" value="1990-05-15">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Địa chỉ email (*)</label>
+                  <input type="email" class="form-control" id="profile-email" value="taikhoandemo1@gmail.com">
+                </div>
+              </div>
+              <div class="form-group" style="margin-top: var(--spacing-sm); margin-bottom: 0;">
+                <label class="form-label">Địa chỉ thường trú (*)</label>
+                <input type="text" class="form-control" id="profile-address" placeholder="Nhập địa chỉ thường trú..." value="15 Lê Lợi, Bến Nghé, Quận 1, TP. Hồ Chí Minh">
+              </div>
+            </div>
+
+            <!-- Identity Info Card Group -->
+            <div class="glass-panel profile-form-group-card" style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md);">
+              <h3 class="profile-card-section-title" style="font-size: 15px; color: #fff; margin-bottom: var(--spacing-md); text-align: left; border-left: 3px solid var(--primary); padding-left: 8px;">Thông tin định danh</h3>
+              
+              <!-- VNeID Identity verification link card -->
+              <div class="kyc-status-container" id="vneid-linked-container" style="display: none; margin-bottom: var(--spacing-md); padding: 12px; background: rgba(0, 230, 118, 0.05); border: 1px solid rgba(0, 230, 118, 0.15); border-radius: var(--radius-default); align-items: center; gap: var(--spacing-md);">
+                <span style="font-size: 32px;">🛡️</span>
+                <div style="text-align: left; flex: 1;">
+                  <h4 style="color: #fff; font-size: 13px; margin-bottom: 2px;">TÀI KHOẢN ĐÃ LIÊN KẾT ĐỊNH DANH QUỐC GIA VNeID</h4>
+                  <p style="font-size: 11px; color: var(--on-surface-variant); margin:0;">Hồ sơ của bạn đã được xác thực cấp độ 2 chính chủ từ cơ sở dữ liệu dân cư Bộ Công An. Bạn có đầy đủ quyền tham gia trả giá và ký số biên bản thầu.</p>
+                </div>
+              </div>
+
+              <div class="kyc-status-container" id="vneid-unlinked-container" style="margin-bottom: var(--spacing-md); padding: 12px; background: rgba(255, 184, 0, 0.05); border: 1px solid rgba(255, 184, 0, 0.15); border-radius: var(--radius-default); display: flex; align-items: center; gap: var(--spacing-md);">
+                <span style="font-size: 32px; color: var(--secondary)">⚠️</span>
+                <div style="text-align: left; flex: 1;">
+                  <h4 style="color: #fff; font-size: 13px; margin-bottom: 2px;">YÊU CẦU ĐỊNH DANH TÀI KHOẢN</h4>
+                  <p style="font-size: 11px; color: var(--on-surface-variant); margin:0;">Để tham gia đặt giá pháp lý cho các tài sản thầu, tài khoản bắt buộc phải liên kết VNeID hoặc chụp gửi giấy tờ.</p>
+                </div>
+                <button class="btn btn-primary btn-sm" style="padding: 6px 12px; font-size: 11px;" onclick="simulateVNeIDInstantKYC()">LIÊN KẾT VNeID (3s)</button>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                <div class="form-group">
+                  <label class="form-label">Số CCCD (*)</label>
+                  <input type="text" class="form-control" id="profile-idCard" value="001095009982">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Ngày cấp (*)</label>
+                  <input type="date" class="form-control" id="profile-idDate" value="2021-09-15">
+                </div>
+              </div>
+              <div class="form-group" style="margin-top: var(--spacing-sm); margin-bottom: var(--spacing-md);">
+                <label class="form-label">Nơi cấp (*)</label>
+                <input type="text" class="form-control" id="profile-idPlace" placeholder="Nhập nơi cấp..." value="Cục Cảnh sát Quản lý hành chính về trật tự xã hội">
+              </div>
+
+              <!-- Manual Photo Upload Cards -->
+              <div id="manual-kyc-form" style="margin-bottom: 0;">
+                <label class="form-label" style="margin-bottom: var(--spacing-sm);">Ảnh CCCD mặt trước & mặt sau (*)</label>
+                <div class="kyc-cards-row" style="margin-bottom: 0;">
+                  <div class="kyc-upload-card" onclick="triggerManualKYCUpload('front')" id="cccd-front-card" style="position: relative;">
+                    <div class="kyc-upload-icon">📷</div>
+                    <div class="kyc-upload-title">ẢNH CCCD MẶT TRƯỚC (*)</div>
+                    <div class="kyc-upload-desc">Định dạng JPG, PNG dưới 5MB</div>
+                    <div id="front-loaded-visual" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,230,118,0.12); display: flex; align-items: center; justify-content: center; font-weight:700; color:var(--tertiary);">✓ Đã chụp ảnh</div>
+                  </div>
+                  <div class="kyc-upload-card" onclick="triggerManualKYCUpload('back')" id="cccd-back-card" style="position: relative;">
+                    <div class="kyc-upload-icon">📷</div>
+                    <div class="kyc-upload-title">ẢNH CCCD MẶT SAU (*)</div>
+                    <div class="kyc-upload-desc">Định dạng JPG, PNG dưới 5MB</div>
+                    <div id="back-loaded-visual" style="display: none; position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,230,118,0.12); display: flex; align-items: center; justify-content: center; font-weight:700; color:var(--tertiary);">✓ Đã chụp ảnh</div>
+                  </div>
+                </div>
+                <div class="form-group" style="text-align: right; margin-top: var(--spacing-md); margin-bottom: 0;">
+                  <button class="btn btn-secondary" onclick="submitManualKYCDocuments()" id="btn-manual-kyc-submit">GỬI YÊU CẦU XÉT DUYỆT</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bank Account Card Group -->
+            <div class="glass-panel profile-form-group-card" style="margin-bottom: var(--spacing-lg); padding: var(--spacing-md);">
+              <h3 class="profile-card-section-title" style="font-size: 15px; color: #fff; margin-bottom: var(--spacing-md); text-align: left; border-left: 3px solid var(--primary); padding-left: 8px;">Tài khoản ngân hàng</h3>
+              <div class="form-group">
+                <label class="form-label">Tên ngân hàng (*)</label>
+                <select class="form-control" id="profile-bankName" style="background-color: var(--surface-container-low); border: 1px solid var(--outline-variant); color: #fff; padding: 12px; border-radius: var(--radius-default); width: 100%;">
+                  <option value="Vietcombank (VCB)">Vietcombank (VCB)</option>
+                  <option value="Techcombank (TCB)">Techcombank (TCB)</option>
+                  <option value="BIDV">BIDV</option>
+                  <option value="VietinBank">VietinBank</option>
+                  <option value="Agribank">Agribank</option>
+                  <option value="MB Bank">MB Bank</option>
+                </select>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); margin-top: var(--spacing-sm);">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Tên chủ tài khoản (*)</label>
+                  <input type="text" class="form-control" id="profile-bankOwner" value="NGUYEN VAN A">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Số tài khoản (*)</label>
+                  <input type="text" class="form-control" id="profile-bankAccount" value="190367266064">
+                </div>
+              </div>
+            </div>
+            
+            <div style="text-align: right; margin-top: var(--spacing-md);">
+              <button class="btn btn-primary" onclick="handleProfileSave()">LƯU THÔNG TIN CÁ NHÂN</button>
+            </div>
+          </div>
+
+          <!-- SECTION B: CART / REGISTERED AUCTIONS & DEPOSITS -->
+          <!-- SECTION B: CART / REGISTERED AUCTIONS & DEPOSITS (TRANSACTION LIST) -->
+          <div id="profile-sec-cart" class="profile-section-wrapper" style="display: none;">
+            <div class="profile-section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+              <h2 style="font-size: 18px; color: #fff; margin: 0;">Danh sách giao dịch</h2>
+              <span class="results-count" id="cart-counter" style="font-size: 13px; color: var(--primary);">Có 1 tài sản giao dịch</span>
+            </div>
+
+            <!-- Filter Pills and Search Bar -->
+            <div class="profile-filter-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); gap: var(--spacing-md); flex-wrap: wrap;">
+              <div class="filter-pills" id="cart-category-pills" style="display: flex; gap: 8px;">
+                <button class="filter-pill" id="cart-pill-dat" onclick="changeCartFilter('dat')">🏛️ Đất</button>
+                <button class="filter-pill" id="cart-pill-tranh" onclick="changeCartFilter('tranh')">🎨 Tranh</button>
+                <button class="filter-pill" id="cart-pill-xe" onclick="changeCartFilter('xe')">🚗 Xe cộ</button>
+                <button class="filter-pill active" id="cart-pill-all" onclick="changeCartFilter('all')">💎 Tất cả</button>
+              </div>
+              <div class="profile-search-box" style="position: relative; width: 240px;">
+                <input type="text" id="cart-search-input" placeholder="Tìm tên tài sản hoặc mã..." onkeyup="filterCartList()" style="width: 100%; padding: 8px 12px 8px 32px; background: rgba(255,255,255,0.02); border: 1px solid var(--outline-variant); border-radius: var(--radius-full); color: #fff; font-size: 12.5px;">
+                <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 13px; opacity: 0.6;">🔍</span>
+              </div>
+            </div>
+            
+            <div class="transaction-cards-grid" id="cart-cards-container" style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+              <!-- Rendered dynamically as list of Glassmorphic Cards -->
+            </div>
+
+            <!-- Pagination standard mockup -->
+            <div class="profile-pagination" style="display: flex; justify-content: center; gap: 8px; margin-top: var(--spacing-xl); align-items: center;">
+              <button class="pag-btn">&lt;</button>
+              <button class="pag-btn active">1</button>
+              <button class="pag-btn">2</button>
+              <button class="pag-btn">3</button>
+              <button class="pag-btn">4</button>
+              <button class="pag-btn">5</button>
+              <span style="color: var(--on-surface-variant); font-size: 12px;">...</span>
+              <button class="pag-btn">16</button>
+              <button class="pag-btn">&gt;</button>
+            </div>
+          </div>
+
+          <!-- SECTION C: BIDDING HISTORY & SIGNING (AUCTION HISTORY) -->
+          <div id="profile-sec-history" class="profile-section-wrapper" style="display: none;">
+            <!-- Breadcrumbs in profile -->
+            <div class="profile-breadcrumbs" style="display: flex; align-items: center; gap: var(--spacing-xs); font-size: 12px; color: var(--on-surface-variant); margin-bottom: var(--spacing-md); text-align: left;">
+              <span style="cursor:pointer;" onclick="appRouter.navigate('homepage')">🏛️ Trang chủ</span>
+              <span class="crumb-separator">/</span>
+              <span>Tài khoản</span>
+              <span class="crumb-separator">/</span>
+              <span style="color: var(--primary); font-weight: 700;">Lịch sử đấu giá</span>
+            </div>
+
+            <div class="profile-section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+              <h2 style="font-size: 18px; color: #fff; margin: 0;">Lịch sử đấu giá</h2>
+            </div>
+
+            <!-- Stats Bar Widgets Grid -->
+            <div class="profile-stats-grid" style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+              <div class="glass-panel stat-widget-card" style="padding: 16px; background: rgba(0, 230, 118, 0.03); border-color: rgba(0, 230, 118, 0.15); display: flex; align-items: center; gap: var(--spacing-md); text-align: left;">
+                <div class="stat-icon-wrapper" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(0, 230, 118, 0.1); display: flex; align-items: center; justify-content: center; font-size: 20px;">💵</div>
+                <div>
+                  <div class="stat-value" id="stat-total-win-val" style="font-size: 16.5px; font-weight: 800; color: var(--tertiary);">78.758.500.000 đ</div>
+                  <div class="stat-label" style="font-size: 11px; color: var(--on-surface-variant); margin-top: 2px;">Tổng giá trị tài sản đã trúng đấu giá</div>
+                </div>
+              </div>
+              
+              <div class="glass-panel stat-widget-card" style="padding: 16px; display: flex; align-items: center; gap: var(--spacing-md); text-align: left;">
+                <div class="stat-icon-wrapper" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); display: flex; align-items: center; justify-content: center; font-size: 20px;">🔨</div>
+                <div>
+                  <div class="stat-value" id="stat-total-reg-count" style="font-size: 18px; font-weight: 800; color: #fff;">5</div>
+                  <div class="stat-label" style="font-size: 11px; color: var(--on-surface-variant); margin-top: 2px;">Đăng ký tham gia đấu giá</div>
+                </div>
+              </div>
+
+              <div class="glass-panel stat-widget-card" style="padding: 16px; display: flex; align-items: center; gap: var(--spacing-md); text-align: left;">
+                <div class="stat-icon-wrapper" style="width: 44px; height: 44px; border-radius: 50%; background: rgba(0, 230, 118, 0.1); display: flex; align-items: center; justify-content: center; font-size: 20px;">🛍️</div>
+                <div>
+                  <div class="stat-value" id="stat-win-count" style="font-size: 18px; font-weight: 800; color: #fff;">2</div>
+                  <div class="stat-label" style="font-size: 11px; color: var(--on-surface-variant); margin-top: 2px;">Tài sản trúng đấu giá</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Filter Pills and Search Bar -->
+            <div class="profile-filter-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md); gap: var(--spacing-md); flex-wrap: wrap;">
+              <div class="filter-pills" id="history-category-pills" style="display: flex; gap: 8px;">
+                <button class="filter-pill" id="history-pill-dat" onclick="changeHistoryFilter('dat')">🏛️ Đất</button>
+                <button class="filter-pill" id="history-pill-tranh" onclick="changeHistoryFilter('tranh')">🎨 Tranh</button>
+                <button class="filter-pill" id="history-pill-xe" onclick="changeHistoryFilter('xe')">🚗 Xe cộ</button>
+                <button class="filter-pill active" id="history-pill-all" onclick="changeHistoryFilter('all')">💎 Tất cả</button>
+              </div>
+              <div class="profile-search-box" style="position: relative; width: 240px;">
+                <input type="text" id="history-search-input" placeholder="Tìm kiếm..." onkeyup="filterHistoryList()" style="width: 100%; padding: 8px 12px 8px 32px; background: rgba(255,255,255,0.02); border: 1px solid var(--outline-variant); border-radius: var(--radius-full); color: #fff; font-size: 12.5px;">
+                <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 13px; opacity: 0.6;">🔍</span>
+              </div>
+            </div>
+            
+            <div style="overflow-x: auto;">
+              <table class="profile-table">
+                <thead>
+                  <tr>
+                    <th>Tên tài sản</th>
+                    <th>Kết quả</th>
+                    <th>Giá trúng</th>
+                    <th>Thời gian kết thúc</th>
+                    <th>Lựa chọn thêm</th>
+                  </tr>
+                </thead>
+                <tbody id="history-table-body">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- SECTION D: SECURITY SETTINGS (2FA AUTHENTICATOR) -->
+          <div id="profile-sec-security" class="profile-section-wrapper" style="display: none;">
+            <div class="profile-section-header" style="margin-bottom: var(--spacing-md);">
+              <h2 style="font-size: 18px; color: #fff; margin: 0; text-align: left;">Thiết lập bảo mật</h2>
+            </div>
+            
+            <div class="glass-panel security-2fa-layout" style="padding: var(--spacing-lg); text-align: left;">
+              <h3 style="font-size: 15px; font-weight: 700; color: #fff; margin-top: 0; margin-bottom: var(--spacing-lg); display: flex; align-items: center; gap: 8px;">
+                Xác minh 2 bước
+                <span class="badge" id="security-2fa-badge" style="font-size: 10px; padding: 2px 6px; background: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255, 107, 107, 0.3); color: var(--error);">Chưa kích hoạt</span>
+              </h3>
+
+              <div class="security-2fa-grid" style="display: grid; grid-template-columns: 180px 1fr; gap: var(--spacing-lg); align-items: center;">
+                <!-- Left Phone Graphic Illustration -->
+                <div class="phone-illustration-box" style="display: flex; justify-content: center; align-items: center;">
+                  <div class="phone-illustration-graphic" id="security-phone-illustration" style="width: 110px; height: 160px; border: 3px solid rgba(255,255,255,0.15); border-radius: 16px; position: relative; background: rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
+                    <div style="width: 32px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; position: absolute; top: 8px;"></div>
+                    <!-- Central Dynamic Icon (shield or qr phone scanner) -->
+                    <div class="phone-illustrated-icon" id="phone-illustrated-icon" style="font-size: 38px; filter: drop-shadow(0 0 10px rgba(255, 107, 107, 0.3)); transition: all 0.3s;">📲</div>
+                    <div style="width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.15); position: absolute; bottom: 8px;"></div>
+                  </div>
+                </div>
+
+                <!-- Right Description & Button -->
+                <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; min-height: 150px;">
+                  <div>
+                    <h4 style="font-size: 14.5px; font-weight: 700; color: #fff; margin: 0 0 var(--spacing-sm) 0;">Ứng dụng Authenticator</h4>
+                    <p style="font-size: 13px; color: var(--on-surface-variant); line-height: 1.6; margin: 0;">
+                      Sử dụng ứng dụng Authenticator để lấy mã xác minh miễn phí, ngay cả khi điện thoại của bạn không có kết nối mạng. Ứng dụng này hoạt động trên Android và iPhone.
+                    </p>
+                  </div>
+                  
+                  <div style="text-align: right; margin-top: var(--spacing-md);">
+                    <button class="btn btn-primary" id="btn-toggle-2fa" style="background: var(--tertiary); border-color: var(--tertiary); color: var(--on-tertiary); font-weight: 800; padding: 10px 24px; box-shadow: 0 4px 15px var(--tertiary-glow);" onclick="handleSetup2FAClick()">Thiết lập ngay</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION E: REGISTERED UPCOMING AUCTIONS (MOCK TAB) -->
+          <div id="profile-sec-upcoming" class="profile-section-wrapper" style="display: none;">
+            <div class="profile-section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+              <h2 style="font-size: 18px; color: #fff; margin: 0;">Tài sản chờ đấu giá</h2>
+              <span class="results-count" style="font-size: 13px; color: var(--primary);">Có 1 tài sản đăng ký</span>
+            </div>
+            
+            <div style="overflow-x: auto;">
+              <table class="profile-table">
+                <thead>
+                  <tr>
+                    <th>Mã số tài sản</th>
+                    <th>Tên tài sản đấu thầu</th>
+                    <th>Trạng thái phiên</th>
+                    <th>Giá thầu hiện tại</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span style="font-weight: 700; color: var(--primary);">BID_9922</span></td>
+                    <td style="font-weight: 600; color: #fff;">Bức tranh sơn mài cổ Họa sĩ Tô Ngọc Vân</td>
+                    <td><span class="badge badge-live">Đang diễn ra</span></td>
+                    <td>1.620.000.000đ</td>
+                    <td><button class="btn btn-primary" style="padding: 6px 12px; font-size:11px;" onclick="appRouter.navigate('bidding', 'BID_9922')">Vào phòng thầu 🔨</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </main>
+
+      </div>
+      <footer-section></footer-section>
+    </div>
+
+    <!-- VIEW 5: LIVE BIDDING ROOM (THE PORTAL HEART) -->
+    <div id="bidding-view" class="view-container">
+      <div class="bidding-room-layout">
+        
+
+
+        <!-- Main Bidding Columns -->
+        <div class="bidding-grid">
+          
+          <!-- Left Column: Image, Info and Specs -->
+          <div class="glass-panel bidding-asset-card" style="padding: 16px;">
+            <div class="bidding-asset-image-wrapper">
+              <img class="bidding-asset-image" id="room-asset-img" src="" alt="Live Asset Image">
+              
+              <!-- Floating countdown clock overlay (Mockup Top-Right style) -->
+              <div class="bidding-countdown-overlay">
+                <span id="room-countdown-label" style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; color: var(--error); font-weight: 800;">Thời gian còn lại:</span>
+                <span class="countdown-digits" id="room-countdown-clock">01d : 00h : 49m : 49s</span>
+              </div>
+
+              <!-- Floating bottom title & actions overlay (Mockup Bottom style) -->
+              <div class="bidding-title-overlay">
+                <div class="overlay-left">
+                  <h4 id="overlay-asset-name">Thử nghiệm /M2</h4>
+                  <a onclick="handleViewAssetDetails()" class="overlay-link" style="cursor: pointer;">Xem thông tin tài sản &gt;</a>
+                </div>
+                <span class="badge badge-checkin">✓ Đã điểm danh</span>
+              </div>
+            </div>
+            
+            <h3 style="font-size: 15px; color: var(--primary); margin-bottom: var(--spacing-sm); text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px;">Thông số kỹ thuật tài sản</h3>
+            <table class="details-table" id="room-details-table">
+              <!-- Populated dynamically by asset detail map -->
+            </table>
+          </div>
+
+          <!-- Right Column: Console Control -->
+          <div class="glass-panel bidding-panel">
+
+            <!-- Highest Bid Showcase (Mockup top-right price display) -->
+            <div class="highest-bid-box" style="text-align: left;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <div class="highest-bid-label" id="room-price-type-label" style="font-size: 11px; font-weight: 700; color: var(--on-surface-variant); text-transform: uppercase;">Giá hiện tại /m²</div>
+                <div class="bid-count-badge" id="room-bid-count-badge">14 lượt trả giá 📌</div>
+              </div>
+              <div class="highest-bid-val" id="room-highest-bid" style="color: #2ecc71; text-shadow: 0 0 15px rgba(46, 204, 113, 0.2); font-size: 22px; font-weight: 800; font-family: var(--font-display); margin-bottom: 4px;">20.026.000.000 đ</div>
+              <div class="price-words-label" id="room-highest-bid-words" style="font-size: 11px; font-style: italic; color: var(--on-surface-variant);">Hai mươi tỷ không trăm hai mươi sáu triệu đồng</div>
+            </div>
+
+            <!-- scrolling Realtime logs (Mockup scroll history) -->
+            <div class="live-feed-box" style="height: 320px; margin-bottom: var(--spacing-md);">
+              <div class="feed-list" id="room-feed-list">
+                <!-- populated on bid placement/simulator ticks -->
+              </div>
+            </div>
+
+            <!-- Controls Console Panel (Mockup stepper console) -->
+            <div class="console-box" style="padding: 16px;">
+              <div class="my-code-banner" style="margin-bottom: var(--spacing-sm);">
+                Mã đấu thầu của bạn: <span style="color: #fff; font-size: 14px;" id="room-my-bidder-code">BID_9912 (Đã nộp cọc)</span>
+              </div>
+              
+              <!-- Stepper selector (Mockup interactive multiplier counter) -->
+              <div class="stepper-row">
+                <div class="stepper-left">
+                  <span class="stepper-label" id="stepper-unit-label">Bước giá (đ/m²)</span>
+                  <span class="stepper-value-base" id="stepper-base-val">2.000.000 X</span>
+                </div>
+                <div class="stepper-control">
+                  <button class="stepper-btn" onclick="adjustBiddingMultiplier(-1)">-</button>
+                  <span class="stepper-count" id="stepper-multiplier-val">1</span>
+                  <button class="stepper-btn" onclick="adjustBiddingMultiplier(1)">+</button>
+                </div>
+                <span class="stepper-total" id="stepper-total-increment">= 2.000.000 đ</span>
+                <a onclick="handleWithdrawBidClick()" class="withdraw-link" id="btn-withdraw-bid-link">Rút lại</a>
+              </div>
+
+              <!-- Large Gold Action Button (Mockup placement button) -->
+              <button class="btn btn-primary" style="width: 100%; padding: 14px 20px; font-size: 15px; font-weight: 800; border-radius: var(--radius-md); letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);" id="btn-main-place-bid" onclick="handlePlaceMainConsoleBid()">
+                TRẢ GIÁ: 20.028.000.000 đ
+              </button>
+              <div class="price-words-label" id="btn-main-bid-words" style="text-align: center; margin-top: 8px; font-size: 11px;">
+                Hai mươi tỷ không trăm hai mươi tám triệu đồng
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Other Bidding Rooms Section -->
+        <div class="bidding-other-rooms-section" style="margin-top: 48px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 32px;">
+          <div class="bidding-other-rooms-header" style="text-align: left; margin-bottom: 24px;">
+            <h2 style="font-size: 20px; font-weight: 700; color: #fff; margin: 0 0 6px 0;">Danh Sách Các Phòng Đấu Giá Khác</h2>
+          </div>
+          <div class="rooms-grid" id="bidding-other-rooms-grid">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+      </div>
+      <footer-section></footer-section>
+    </div>
+
+    <!-- VIEW 6: ROOMS LISTING (PHÒNG ĐẤU GIÁ) -->
+    <div id="rooms-view" class="view-container">
+      <div class="rooms-container">
+        
+        <!-- Header search and filter bar -->
+        <div class="rooms-header-panel">
+          <div class="rooms-title-section">
+            <h1>Danh Sách Phòng Đấu Giá</h1>
+            <p>Hệ thống phòng đấu trực tuyến thời gian thực tích hợp eKYC & Anti-Sniping</p>
+          </div>
+          
+          <div class="rooms-filter-controls">
+            <!-- Search bar -->
+            <div class="rooms-search-box">
+              <input type="text" id="rooms-search-input" placeholder="Tìm tên phòng hoặc mã tài sản..." onkeyup="filterRoomsList()">
+            </div>
+            
+            <!-- Filters -->
+            <div class="rooms-filter-pills" id="rooms-status-pills">
+              <button class="filter-pill active" onclick="changeRoomsFilter('ALL')">Tất cả</button>
+              <button class="filter-pill pill-live" onclick="changeRoomsFilter('LIVE')">🟢 Đang đấu live</button>
+              <button class="filter-pill pill-upcoming" onclick="changeRoomsFilter('UPCOMING')">🟡 Sắp mở thầu</button>
+              <button class="filter-pill pill-ended" onclick="changeRoomsFilter('ENDED')">🔴 Đã kết thúc</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grid of active rooms -->
+        <div class="rooms-grid" id="rooms-list-grid">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+      </div>
+      <footer-section></footer-section>
+    </div>
+
+    <!-- VIEW 7: DETAIL VIEW (CHI TIẾT CUỘC ĐẤU GIÁ) -->
+    <div id="detail-view" class="view-container">
+      <div class="detail-container">
+        
+        <!-- Breadcrumbs Navigation -->
+        <div class="breadcrumbs-bar">
+          <span class="crumb-home" onclick="appRouter.navigate('homepage')">🏛️ Trang chủ</span>
+          <span class="crumb-separator">/</span>
+          <span class="crumb-link" onclick="appRouter.navigate('search')">Cuộc đấu giá</span>
+          <span class="crumb-separator">/</span>
+          <span class="crumb-active">Chi tiết cuộc đấu giá</span>
+        </div>
+
+        <div class="detail-top-grid">
+          <!-- Left: Image Slider -->
+          <div class="glass-panel detail-gallery-panel">
+            <div class="detail-main-image-wrapper">
+              <button class="gallery-nav-btn prev-btn" onclick="slideDetailImage(-1)">‹</button>
+              <img id="detail-main-img" src="" alt="Asset Detail Image">
+              <button class="gallery-nav-btn next-btn" onclick="slideDetailImage(1)">›</button>
+            </div>
+            <div class="detail-thumbnail-row" id="detail-thumbnails-container">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Right: Summary & Action Console -->
+          <div class="glass-panel detail-console-panel">
+            <h1 class="detail-title" id="detail-asset-name">Đang tải tên tài sản...</h1>
+            
+            <div class="detail-price-box">
+              <div class="detail-price-label">Giá khởi điểm (đ)</div>
+              <div class="detail-price-row">
+                <span class="detail-price-value" id="detail-start-price">0 đ</span>
+                <span class="detail-bid-badge" id="detail-bid-count-badge">0 lượt trả giá 📌</span>
+              </div>
+            </div>
+
+            <!-- Main dynamic action container -->
+            <div class="detail-action-card" id="detail-action-card">
+              <!-- Populated dynamically based on user state (Chưa ký -> Đăng ký -> Nộp cọc -> Vào phòng live) -->
+            </div>
+            
+            <div class="detail-status-subtext" id="detail-status-subtext">Trạng thái: Đang tải thông tin...</div>
+          </div>
+        </div>
+
+        <!-- Middle: Specifications Tables (2 Columns) -->
+        <div class="detail-specs-header">
+          <h2>Thông số kỹ thuật tài sản</h2>
+        </div>
+        
+        <div class="detail-specs-grid">
+          <!-- Left Table specs -->
+          <div class="glass-panel spec-table-card">
+            <table class="specs-table">
+              <tr>
+                <th>Mã tài sản</th>
+                <td id="spec-id" class="spec-highlight">--</td>
+              </tr>
+              <tr>
+                <th>Thời gian mở đăng ký</th>
+                <td id="spec-reg-start">04/05/2026 10:10:24</td>
+              </tr>
+              <tr>
+                <th>Thời gian kết thúc đăng ký</th>
+                <td id="spec-reg-end">--</td>
+              </tr>
+              <tr>
+                <th>Giá khởi điểm</th>
+                <td id="spec-start-price">-- đ</td>
+              </tr>
+              <tr>
+                <th>Bước giá</th>
+                <td id="spec-step-price">-- đ</td>
+              </tr>
+              <tr>
+                <th>Tiền hồ sơ đấu giá</th>
+                <td id="spec-ticket-price">1.000 đ</td>
+              </tr>
+              <tr>
+                <th>Số bước giá tối đa / lần trả</th>
+                <td>Bước giá không giới hạn</td>
+              </tr>
+              <tr>
+                <th>Phương thức đấu giá</th>
+                <td>Trả giá lên và liên tục</td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Right Table specs -->
+          <div class="glass-panel spec-table-card">
+            <table class="specs-table">
+              <tr>
+                <th>Chủ tài sản</th>
+                <td>Sở Tài nguyên và Môi trường</td>
+              </tr>
+              <tr>
+                <th>Nơi xem tài sản</th>
+                <td id="spec-location">Hà Nội</td>
+              </tr>
+              <tr>
+                <th>Thời gian xem tài sản</th>
+                <td>10/09/2025</td>
+              </tr>
+              <tr>
+                <th>Thời gian bắt đầu trả giá</th>
+                <td id="spec-start-time">--</td>
+              </tr>
+              <tr>
+                <th>Thời gian kết thúc trả giá</th>
+                <td id="spec-end-time">--</td>
+              </tr>
+              <tr>
+                <th>Tiền đặt trước (cọc)</th>
+                <td id="spec-deposit-price" class="spec-highlight-secondary">-- đ</td>
+              </tr>
+              <tr>
+                <th>Thời gian bắt đầu nộp tiền</th>
+                <td id="spec-deposit-start">04/05/2026 10:10:24</td>
+              </tr>
+              <tr>
+                <th>Thời gian kết thúc nộp tiền</th>
+                <td id="spec-deposit-end">--</td>
+              </tr>
+              <tr>
+                <th>Số vòng đấu gia hạn</th>
+                <td>Không giới hạn</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- Bottom: Dynamic 6 Tabs Panel -->
+        <div class="detail-tabs-section">
+          <div class="detail-tabs-menu">
+            <button class="detail-tab-btn active" onclick="changeDetailTab(0)">MÔ TẢ TÀI SẢN</button>
+            <button class="detail-tab-btn" onclick="changeDetailTab(1)">THÔNG TIN ĐẤU GIÁ</button>
+            <button class="detail-tab-btn" onclick="changeDetailTab(2)">TÀI LIỆU LIÊN QUAN</button>
+            <button class="detail-tab-btn" onclick="changeDetailTab(3)">DIỄN BIẾN CUỘC ĐẤU GIÁ</button>
+            <button class="detail-tab-btn" onclick="changeDetailTab(4)">TÀI LIỆU CỦA TÔI</button>
+            <button class="detail-tab-btn" onclick="changeDetailTab(5)">KHÁCH HÀNG KHÔNG ĐỦ ĐIỀU KIỆN</button>
+          </div>
+          
+          <div class="glass-panel detail-tabs-content" id="detail-tab-content-panel">
+            <!-- Loaded dynamically based on selected tab -->
+          </div>
+        </div>
+
+      </div>
+      <footer-section></footer-section>
+    </div>
+
+    <!-- MODAL 1: LOGIN SMS OTP POPUP DIALOG -->
+    <div class="modal-overlay" id="modal-otp">
+      <div class="glass-panel modal-content">
+        <div class="modal-close-btn" onclick="closeModal('modal-otp')">×</div>
+        <div class="modal-header-icon">💬</div>
+        <h3 class="modal-title">XÁC THỰC OTP AN NINH</h3>
+        <p class="modal-desc">Mã OTP bảo mật 6 chữ số đã được gửi qua SMS đến số điện thoại <span id="otp-phone-display" style="font-weight: 700; color: var(--primary);">0367266064</span>.</p>
+        
+        <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: var(--spacing-lg);">
+          <input type="text" maxlength="1" class="form-control" style="width: 48px; height: 54px; text-align: center; font-size: 20px; font-weight:700;" class="otp-digit" onkeyup="moveOtpFocus(this, 1)" id="otp-1">
+          <input type="text" maxlength="1" class="form-control" style="width: 48px; height: 54px; text-align: center; font-size: 20px; font-weight:700;" class="otp-digit" onkeyup="moveOtpFocus(this, 2)" id="otp-2">
+          <input type="text" maxlength="1" class="form-control" style="width: 48px; height: 54px; text-align: center; font-size: 20px; font-weight:700;" class="otp-digit" onkeyup="moveOtpFocus(this, 3)" id="otp-3">
+          <input type="text" maxlength="1" class="form-control" style="width: 48px; height: 54px; text-align: center; font-size: 20px; font-weight:700;" class="otp-digit" onkeyup="moveOtpFocus(this, 4)" id="otp-4">
+          <input type="text" maxlength="1" class="form-control" style="width: 48px; height: 54px; text-align: center; font-size: 20px; font-weight:700;" class="otp-digit" onkeyup="moveOtpFocus(this, 5)" id="otp-5">
+          <input type="text" maxlength="1" class="form-control" style="width: 48px; height: 54px; text-align: center; font-size: 20px; font-weight:700;" class="otp-digit" onkeyup="moveOtpFocus(this, 6)" id="otp-6">
+        </div>
+
+        <p style="font-size: 13px; color: var(--on-surface-variant); margin-bottom: var(--spacing-lg);">
+          Không nhận được mã? <a href="#" style="color: var(--primary);" id="otp-countdown-label">Gửi lại mã (59s)</a>
+        </p>
+
+        <div style="display: flex; gap: var(--spacing-sm);">
+          <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-otp')">HỦY BỎ</button>
+          <button class="btn btn-primary" style="flex:1" onclick="verifySMSCode()">XÁC NHẬN ĐĂNG NHẬP</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 2: VIETQR INVOICE & SIMULATED DEPOSIT PAYMENT -->
+    <div class="modal-overlay" id="modal-vietqr">
+      <div class="glass-panel modal-content" style="max-width: 520px; text-align: left;">
+        <div class="modal-close-btn" onclick="closeModal('modal-vietqr')">×</div>
+        <div style="text-align: center; margin-bottom: var(--spacing-md);">
+          <div class="modal-header-icon">💸</div>
+          <h3 class="modal-title">NỘP TIỀN ĐẶT TRƯỚC CỌC THẦU</h3>
+          <p class="modal-desc" style="margin-bottom:0">Quét mã VietQR dưới đây để đối soát và phê duyệt tự động</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: var(--spacing-md); align-items: center;">
+          <!-- Left Col QR -->
+          <div style="text-align: center; padding: 12px; background: white; border-radius: var(--radius-md); display: flex; flex-direction: column; align-items: center;">
+            <img id="vietqr-image-placeholder" style="width: 170px; height: 170px;" src="" alt="VietQR code">
+            <span style="font-size: 9px; font-weight: 800; color: #000; margin-top: 6px;">VIETQR QUÉT TỰ ĐỘNG CHỌN TIỀN</span>
+          </div>
+
+          <!-- Right Col payment instructions -->
+          <div>
+            <div class="form-group" style="margin-bottom: var(--spacing-sm)">
+              <span class="form-label" style="font-size: 11px;">Số tiền cọc cần nộp</span>
+              <div style="font-size: 18px; font-weight: 800; color: var(--secondary);" id="vietqr-deposit-amount">400.000.000đ</div>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: var(--spacing-sm)">
+              <span class="form-label" style="font-size: 11px;">Ngân hàng nhận</span>
+              <div style="font-size: 13px; font-weight: 700;" id="vietqr-bank-name">Vietcombank (VCB)</div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: var(--spacing-sm)">
+              <span class="form-label" style="font-size: 11px;">Số tài khoản thụ hưởng</span>
+              <div style="font-size: 13px; font-weight: 700; color: var(--primary);" class="payment-val-copyable" onclick="copyText('vietqr-bank-account')">
+                <span id="vietqr-bank-account">10022998811</span> 📋
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: var(--spacing-sm)">
+              <span class="form-label" style="font-size: 11px;">Nội dung chuyển khoản chuẩn</span>
+              <div style="font-size: 12px; font-weight: 700; color: #fff;" class="payment-val-copyable" onclick="copyText('vietqr-syntax')">
+                <span id="vietqr-syntax">ONBI BID9921 COC TAISAN</span> 📋
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: var(--spacing-md); padding: 12px; background: rgba(255, 107, 107, 0.08); border: 1px dashed rgba(255, 107, 107, 0.2); border-radius: var(--radius-default); font-size: 11px; line-height: 1.5; color: var(--error);">
+          * Lưu ý: Tiền cọc sẽ được tự động đối soát ngân hàng và duyệt cấp mã đấu thầu ngay lập tức khi tài khoản báo Có thành công.
+        </div>
+
+        <div style="margin-top: var(--spacing-lg); display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-sm);">
+          <button class="btn btn-secondary" onclick="closeModal('modal-vietqr')">ĐÓNG LẠI</button>
+          <button class="btn btn-primary" onclick="simulateBankingWebhookResponse()">🤖 GIẢ LẬP NGÂN HÀNG BÁO CÓ</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 3: WINNER ESIGNING DOCUMENT DIALOG -->
+    <div class="modal-overlay" id="modal-esign">
+      <div class="glass-panel modal-content" style="max-width: 580px; text-align: left;">
+        <div class="modal-close-btn" onclick="closeModal('modal-esign')">×</div>
+        
+        <div style="text-align: center; margin-bottom: var(--spacing-md)">
+          <div class="modal-header-icon">✍️</div>
+          <h3 class="modal-title">KÝ SỐ BIÊN BẢN TRÚNG ĐẤU GIÁ</h3>
+          <p class="modal-desc" style="margin-bottom:0">Đọc kỹ điều khoản biên bản thầu dưới đây và thực hiện vẽ chữ ký số cá nhân để xác minh pháp lý.</p>
+        </div>
+
+        <!-- Document Preview Text Area -->
+        <div style="height: 140px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: var(--spacing-md); font-size: 11px; line-height: 1.6; border: 1px solid var(--outline-variant); border-radius: var(--radius-default); margin-bottom: var(--spacing-md); color: var(--on-surface-variant)">
+          <h4 style="color:#fff; text-align: center; margin-bottom: 8px;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</h4>
+          <p style="text-align: center; font-weight:700; margin-bottom: 12px;">Độc lập - Tự do - Hạnh phúc</p>
+          <p style="text-align: center; font-weight:700; margin-bottom: 12px;">BIÊN BẢN KẾT QUẢ ĐẤU GIÁ TÀI SẢN TRỰC TUYẾN</p>
+          <p>Hôm nay, ngày 28 tháng 05 năm 2026, tại cổng thông tin Đấu Giá Trực Tuyến ONBI AUCTION, chúng tôi ghi nhận kết quả đấu giá đối với tài sản: <span id="esign-doc-asset-name" style="font-weight:700; color:#fff;">Đất nền Lô A2 Hoài Đức</span>.</p>
+          <p>Người trúng đấu giá hợp lệ có thông tin sau:</p>
+          <p>- Họ và tên cá nhân: <span style="font-weight:700; color:#fff;">Nguyễn Văn A</span></p>
+          <p>- Số định danh CCCD: <span style="font-weight:700; color:#fff;">001095009982</span></p>
+          <p>- Mức giá trúng đấu giá thầu chính thức: <span id="esign-doc-amount" style="font-weight:700; color:var(--secondary);">4,400,000,000 VNĐ</span></p>
+          <p>Bên trúng đấu giá cam kết thực hiện đầy đủ nghĩa vụ nộp tiền mua tài sản đấu thầu còn lại trong vòng 15 ngày làm việc kể từ khi ký biên bản kết quả này.</p>
+        </div>
+
+        <!-- Draw canvas pad -->
+        <div class="signature-pad-container">
+          <label class="form-label" style="display: flex; justify-content: space-between;">
+            <span>Vẽ chữ ký tay điện tử của bạn vào khung dưới</span>
+            <span style="color: var(--primary); cursor: pointer;" onclick="clearSignatureCanvas()">Xóa vẽ lại ⟲</span>
+          </label>
+          <canvas class="signature-canvas" id="esign-canvas"></canvas>
+        </div>
+
+        <div style="display: flex; gap: var(--spacing-sm);">
+          <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-esign')">HỦY BỎ</button>
+          <button class="btn btn-primary" style="flex:1" onclick="submitSignatureSigning()">HOÀN THÀNH KÝ SỐ</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 4: ANNOUNCEMENTS / NEWS DETAILS DRAWER -->
+    <div class="modal-overlay" id="modal-news">
+      <div class="glass-panel modal-content" style="max-width: 600px; text-align: left;">
+        <div class="modal-close-btn" onclick="closeModal('modal-news')">×</div>
+        
+        <div style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: var(--spacing-sm); margin-bottom: var(--spacing-md);">
+          <span class="badge badge-upcoming" id="news-detail-category">THÔNG BÁO</span>
+          <h2 class="modal-title" style="margin-top: 6px;" id="news-detail-title">Tiêu đề tin tức quy chế đấu giá</h2>
+          <span style="font-size: 11px; color: var(--on-surface-variant);" id="news-detail-pubdate">Đăng ngày: 28/05/2026</span>
+        </div>
+
+        <div style="font-size: 13px; line-height: 1.7; color: var(--on-surface); height: 260px; overflow-y: auto; padding-right: 8px;" id="news-detail-content">
+          Nội dung chi tiết của bài đăng tin tức sẽ được hiển thị động tại đây...
+        </div>
+
+        <div style="margin-top: var(--spacing-lg); text-align: right;">
+          <button class="btn btn-secondary" onclick="closeModal('modal-news')">ĐÓNG LẠI</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 5: CONFIRM PLACE BID PROMPT -->
+    <div class="modal-overlay" id="modal-confirm-bid">
+      <div class="glass-panel modal-content">
+        <div class="modal-close-btn" onclick="closeModal('modal-confirm-bid')">×</div>
+        <div class="modal-header-icon">⚠️</div>
+        <h3 class="modal-title">XÁC NHẬN ĐẶT MỨC GIÁ THẦU</h3>
+        <p class="modal-desc">Bạn chắc chắn muốn gửi lệnh trả giá cho tài sản này với số tiền chính xác:</p>
+        
+        <div style="font-size: 24px; font-weight: 800; color: var(--secondary); padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--outline-variant); border-radius: var(--radius-md); margin-bottom: var(--spacing-lg);" id="confirm-bid-val">
+          4,400,000,000 VNĐ
+        </div>
+        
+        <p style="font-size: 12px; color: var(--error); margin-bottom: var(--spacing-lg); line-height: 1.5;">
+          * Cảnh báo pháp lý: Lệnh trả giá sau khi gửi lên máy chủ WebSocket sẽ được ghi nhận vĩnh viễn và không thể rút lại hoặc sửa đổi vì bất kỳ lý do gì.
+        </p>
+
+        <div style="display: flex; gap: var(--spacing-sm);">
+          <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-confirm-bid')">HỦY BỎ</button>
+          <button class="btn btn-primary" style="flex:1" onclick="executeBidSubmission()">ĐỒNG Ý TRẢ GIÁ</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 6: CHANGE PASSWORD DIALOG -->
+    <div class="modal-overlay" id="modal-change-password">
+      <div class="glass-panel modal-content" style="max-width: 520px; text-align: left;">
+        <div class="modal-close-btn" onclick="closeModal('modal-change-password')">×</div>
+        
+        <div style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: var(--spacing-sm); margin-bottom: var(--spacing-md); text-align: center;">
+          <h3 class="modal-title" style="font-size: 20px; color: #fff;">Thay đổi mật khẩu</h3>
+        </div>
+
+        <form id="change-password-form" onsubmit="event.preventDefault(); executePasswordChange();">
+          <div class="form-group" style="position: relative; margin-bottom: var(--spacing-md);">
+            <label class="form-label">Nhập mật khẩu cũ (*)</label>
+            <input type="password" class="form-control" id="change-pass-old" placeholder="Nhập mật khẩu cũ..." required>
+            <span class="password-toggle-icon" onclick="togglePassVisibility('change-pass-old')" style="bottom: 12px;">👁️</span>
+          </div>
+
+          <div class="form-group" style="position: relative; margin-bottom: var(--spacing-md);">
+            <label class="form-label">Nhập mật khẩu mới (*)</label>
+            <input type="password" class="form-control" id="change-pass-new" placeholder="Nhập mật khẩu mới..." required onkeyup="validateNewPassword()">
+            <span class="password-toggle-icon" onclick="togglePassVisibility('change-pass-new')" style="bottom: 12px;">👁️</span>
+          </div>
+
+          <div class="form-group" style="position: relative; margin-bottom: var(--spacing-md);">
+            <label class="form-label">Nhập lại mật khẩu mới (*)</label>
+            <input type="password" class="form-control" id="change-pass-confirm" placeholder="Nhập lại mật khẩu mới..." required onkeyup="validateNewPassword()">
+            <span class="password-toggle-icon" onclick="togglePassVisibility('change-pass-confirm')" style="bottom: 12px;">👁️</span>
+          </div>
+
+          <!-- Password requirements list -->
+          <div class="password-requirements" style="margin-bottom: var(--spacing-lg); padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--outline-variant); border-radius: var(--radius-md); font-size: 12px; line-height: 1.6;">
+            <div style="font-weight: 700; color: #fff; margin-bottom: 6px;">Lưu ý mật khẩu mới phải thỏa mãn các điều kiện sau:</div>
+            <ul style="list-style: none; padding-left: 0; display: flex; flex-direction: column; gap: 4px; color: var(--on-surface-variant);">
+              <li id="req-different" class="req-item"><span class="req-bullet">○</span> Không trùng lặp với mật khẩu gần nhất</li>
+              <li id="req-length" class="req-item"><span class="req-bullet">○</span> Dài tối thiểu 8 ký tự</li>
+              <li id="req-uppercase" class="req-item"><span class="req-bullet">○</span> Chữ cái viết hoa (từ A tới Z)</li>
+              <li id="req-lowercase" class="req-item"><span class="req-bullet">○</span> Chữ cái viết thường (từ a tới z)</li>
+              <li id="req-number" class="req-item"><span class="req-bullet">○</span> Có ít nhất 1 chữ số</li>
+              <li id="req-special" class="req-item"><span class="req-bullet">○</span> Có ít nhất 1 ký tự đặc biệt</li>
+              <li id="req-whitespace" class="req-item"><span class="req-bullet">○</span> Mật khẩu không bao gồm ký tự khoảng trắng</li>
+            </ul>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="btn-save-password" style="width: 100%; padding: 14px; font-size: 15px; justify-content: center; opacity: 0.6; cursor: not-allowed;" disabled>
+            Lưu
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL 7: WITHDRAW BID CONFIRMATION -->
+    <div class="modal-overlay" id="modal-withdraw-bid">
+      <div class="glass-panel modal-content" style="max-width: 500px; text-align: center;">
+        <div class="modal-close-btn" onclick="closeModal('modal-withdraw-bid')">×</div>
+        <div class="modal-header-icon" style="color: var(--error);">⚠️</div>
+        <h3 class="modal-title" style="color: var(--error);">CẢNH BÁO RÚT LẠI TRẢ GIÁ</h3>
+        <p class="modal-desc" style="line-height: 1.6; font-size: 13.5px; color: var(--on-surface-variant); text-align: left; margin-bottom: var(--spacing-md);">
+          Nếu đồng ý rút lại lượt trả giá gần nhất, bạn sẽ <strong style="color: var(--error); text-transform: uppercase;">mất toàn bộ số tiền đặt trước (cọc thầu)</strong> của tài sản này.<br><br>
+          Mã đấu thầu của bạn sẽ bị đình chỉ và bạn không thể tiếp tục đặt giá trong phiên này.
+        </p>
+        
+        <div style="margin: var(--spacing-md) 0; padding: 12px; background: rgba(255, 107, 107, 0.08); border: 1px dashed rgba(255, 107, 107, 0.2); border-radius: var(--radius-default); font-size: 14px; font-weight: 700; color: var(--error);" id="withdraw-deposit-amount-display">
+          Số tiền cọc bị tịch thu: -- đ
+        </div>
+        
+        <div style="display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-lg);">
+          <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-withdraw-bid')">HỦY BỎ</button>
+          <button class="btn btn-primary" style="flex:1; background: var(--error); border-color: var(--error); box-shadow: 0 4px 15px rgba(255, 107, 107, 0.25);" onclick="confirmWithdrawBid()">ĐỒNG Ý RÚT LẠI</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 8: SETUP 2FA AUTHENTICATOR -->
+    <div class="modal-overlay" id="modal-setup-2fa">
+      <div class="glass-panel modal-content" style="max-width: 500px; text-align: center;">
+        <div class="modal-close-btn" onclick="closeModal('modal-setup-2fa')">×</div>
+        <div class="modal-header-icon" style="color: var(--tertiary);">🔐</div>
+        <h3 class="modal-title" style="color: #fff;">THIẾT LẬP XÁC THỰC 2 BƯỚC</h3>
+        <p class="modal-desc" style="line-height: 1.6; font-size: 13px; color: var(--on-surface-variant); margin-bottom: var(--spacing-md);">
+          Quét mã QR dưới đây bằng ứng dụng Authenticator (Google Authenticator, Microsoft Authenticator) để liên kết thiết bị bảo mật.
+        </p>
+
+        <div style="display: grid; grid-template-columns: 160px 1fr; gap: var(--spacing-md); align-items: center; background: rgba(0,0,0,0.15); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--outline-variant); margin-bottom: var(--spacing-md); text-align: left;">
+          <!-- Left: Mock QR -->
+          <div style="padding: 8px; background: white; border-radius: var(--radius-sm); display: flex; justify-content: center; align-items: center;">
+            <img id="2fa-qr-code-placeholder" style="width: 140px; height: 140px;" src="" alt="Authenticator QR">
+          </div>
+          <!-- Right: backup instructions -->
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <span class="form-label" style="font-size: 10px; color: var(--on-surface-variant);">MÃ KHÓA DỰ PHÒNG CỦA BẠN</span>
+              <div style="font-size: 12.5px; font-weight: 700; color: var(--primary); cursor: pointer;" onclick="copyText('2fa-secret-key-span')">
+                <span id="2fa-secret-key-span">ONBI AUCT SECR KEY</span> 📋
+              </div>
+            </div>
+            <p style="font-size: 11px; color: var(--on-surface-variant); margin: 0; line-height: 1.4;">
+              * Nhập khóa dự phòng thủ công vào ứng dụng xác thực nếu thiết bị của bạn không thể quét được mã QR.
+            </p>
+          </div>
+        </div>
+
+        <div class="form-group" style="text-align: left; margin-bottom: var(--spacing-lg);">
+          <label class="form-label" style="font-size: 12px; color: #fff;">Nhập mã xác minh 6 chữ số từ ứng dụng Authenticator (*)</label>
+          <input type="text" maxlength="6" class="form-control" style="text-align: center; font-size: 22px; font-weight: 800; letter-spacing: 4px; height: 50px; background: rgba(0,0,0,0.2); color:#fff;" placeholder="000000" id="otp-2fa-input">
+        </div>
+        
+        <div style="display: flex; gap: var(--spacing-sm);">
+          <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-setup-2fa')">HỦY BỎ</button>
+          <button class="btn btn-primary" style="flex:1; background: var(--tertiary); border-color: var(--tertiary); color: var(--on-tertiary); box-shadow: 0 4px 15px var(--tertiary-glow);" onclick="confirm2FAActivation()">XÁC NHẬN KÍCH HOẠT</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JavaScript Modules -->
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
