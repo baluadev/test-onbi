@@ -137,35 +137,50 @@ function updateHeaderUserWidget() {
   const user = CustomerDB.state.currentUser;
   const guestActions = document.getElementById("header-guest-actions");
   const userActions = document.getElementById("header-user-actions");
+  const mobileGuestActions = document.getElementById("mobile-guest-actions");
+  const mobileUserActions = document.getElementById("mobile-user-actions");
 
   if (!user) {
     if (guestActions) guestActions.style.display = "flex";
     if (userActions) userActions.style.display = "none";
+    if (mobileGuestActions) mobileGuestActions.style.display = "flex";
+    if (mobileUserActions) mobileUserActions.style.display = "none";
     return;
   }
 
   if (guestActions) guestActions.style.display = "none";
   if (userActions) userActions.style.display = "flex";
+  if (mobileGuestActions) mobileGuestActions.style.display = "none";
+  if (mobileUserActions) mobileUserActions.style.display = "flex";
 
   const usernameEl = document.getElementById("header-username");
   const avatarEl = document.getElementById("header-avatar");
   const badgeEl = document.getElementById("header-kyc-badge");
+  const mUsernameEl = document.getElementById("mobile-username");
+  const mAvatarEl = document.getElementById("mobile-avatar");
+  const mBadgeEl = document.getElementById("mobile-kyc-badge");
 
   if (usernameEl) usernameEl.innerText = user.fullName;
   if (avatarEl) avatarEl.innerText = user.fullName[0];
+  if (mUsernameEl) mUsernameEl.innerText = user.fullName;
+  if (mAvatarEl) mAvatarEl.innerText = user.fullName[0];
 
-  if (badgeEl) {
+  const updateBadge = (el) => {
+    if (!el) return;
     if (user.kycStatus === "APPROVED_VNeID") {
-      badgeEl.innerText = "✓ VNeID Định Danh";
-      badgeEl.style.color = "var(--tertiary)";
+      el.innerText = "✓ VNeID Định Danh";
+      el.style.color = "var(--tertiary)";
     } else if (user.kycStatus === "APPROVED_CCCD") {
-      badgeEl.innerText = "✓ CCCD Đã Duyệt";
-      badgeEl.style.color = "var(--primary)";
+      el.innerText = "✓ CCCD Đã Duyệt";
+      el.style.color = "var(--primary)";
     } else {
-      badgeEl.innerText = "Chưa Định Danh ⚠️";
-      badgeEl.style.color = "var(--secondary)";
+      el.innerText = "Chưa Định Danh ⚠️";
+      el.style.color = "var(--secondary)";
     }
-  }
+  };
+
+  updateBadge(badgeEl);
+  updateBadge(mBadgeEl);
 }
 
 // --- Screen I: Login & Tab Toggle Logic ---
@@ -381,6 +396,7 @@ function simulateGoogleLogin() {
 
 // --- Screen II: Homepage Core Render ---
 let homepageTimers = [];
+let detailTimers = [];
 
 function initHomepageView() {
   // Clear any existing active grid timers
@@ -410,58 +426,61 @@ function initHomepageView() {
 
 function renderAssetGrid(assetsList, containerEl, isLive = true) {
   if (assetsList.length === 0) {
-    containerEl.innerHTML = `<div style="grid-column: 1/-1; padding: 32px; text-align: center; color: var(--on-surface-variant)">Hiện chưa có tài sản nào trong danh mục này.</div>`;
+    containerEl.innerHTML = `
+      <div class="glass-panel" style="grid-column: 1/-1; width: 100%; min-height: 380px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--spacing-sm); padding: 48px; border-radius: var(--radius-md); text-align: center; background: rgba(21, 30, 50, 0.45); border: 1px solid rgba(255, 255, 255, 0.05); box-sizing: border-box;">
+        <span style="font-size: 44px; filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.3)); margin-bottom: 8px;">🔍</span>
+        <h3 style="font-size: 16px; color: #fff; margin: 0 0 4px 0; font-weight: 700; font-family: var(--font-display);">Hiện chưa có tài sản nào</h3>
+        <p style="font-size: 13px; color: var(--on-surface-variant); max-width: 440px; margin: 0 0 16px 0; line-height: 1.6;">Hiện tại không tìm thấy tài sản nào phù hợp với bộ lọc bạn chọn. Hãy thử điều chỉnh khoảng giá hoặc danh mục để tìm kiếm thêm.</p>
+        <button class="btn btn-primary" onclick="resetAllFilters()" style="padding: 8px 20px; font-size: 12.5px; font-weight: 700; border-radius: var(--radius-default); box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);">
+          XÓA TẤT CẢ BỘ LỌC
+        </button>
+      </div>
+    `;
     return;
   }
 
   containerEl.innerHTML = assetsList.map(asset => {
-    const isRegistered = CustomerDB.state.registeredAuctions.some(r => r.assetId === asset.id);
-    const depositDetails = CustomerDB.state.registeredAuctions.find(r => r.assetId === asset.id);
-    const isCoked = depositDetails ? depositDetails.depositPaid : false;
-    
-    let btnText = "Đăng ký tham gia";
-    let btnClass = "btn-primary";
-    let btnClick = `handleAssetRegistration('${asset.id}')`;
-    
-    if (isRegistered) {
-      if (isCoked) {
-        btnText = isLive ? "VÀO PHÒNG ĐẤU GIÁ LIVE" : "ĐÃ NỘP CỌC (ĐỢI MỞ)";
-        btnClass = isLive ? "btn-primary" : "btn-glass";
-        btnClick = isLive ? `appRouter.navigate('bidding', '${asset.id}')` : `appRouter.navigate('profile', 'cart')`;
-      } else {
-        btnText = "NỘP TIỀN ĐẶT TRƯỚC";
-        btnClass = "btn-secondary";
-        btnClick = `appRouter.navigate('profile', 'cart')`;
-      }
-    }
+    const isFavorite = CustomerDB.state.favorites && CustomerDB.state.favorites.includes(asset.id);
+    const heartEmoji = isFavorite ? "❤️" : "🤍";
 
-    const priceLabel = isLive ? "Giá cao nhất trả" : "Giá khởi điểm";
-    const priceVal = isLive && asset.currentBid > 0 ? asset.currentBid : asset.startPrice;
+    // Determine starting labels/prices
+    const nowTime = Date.now();
+    const startTimeParsed = new Date(asset.startTime.replace(' ', 'T')).getTime();
+    
+    const priceLabel = nowTime >= startTimeParsed ? "Giá hiện tại" : "Giá khởi điểm";
+    const priceVal = asset.currentBid > 0 ? asset.currentBid : asset.startPrice;
 
     return `
       <div class="glass-panel asset-card" onclick="handleBiddingDropdownClick('${asset.id}')">
         <div class="asset-thumb-wrapper">
           <img class="asset-thumb" src="${asset.image}" alt="${asset.name}">
-          <span class="badge ${isLive ? 'badge-live' : 'badge-upcoming'} asset-badge-floating">${isLive ? 'ĐANG ĐẤU' : 'SẮP MỞ'}</span>
-        </div>
-        <div class="asset-body">
-          <div class="asset-title">${asset.name}</div>
           
-          <div style="margin: var(--spacing-sm) 0;">
-            <div class="asset-info-row">
-              <span class="asset-info-label">${priceLabel}</span>
-              <span class="asset-price-major">${(priceVal / 1000000000).toFixed(2)} Tỷ VNĐ</span>
-            </div>
-            <div class="asset-info-row">
-              <span class="asset-info-label">Tiền đặt trước (Cọc)</span>
-              <span class="asset-info-val">${(asset.depositAmount / 1000000).toFixed(0)} Triệu VNĐ</span>
-            </div>
+          <!-- Favorite heart button (Mockup matching feature) -->
+          <div class="favorite-heart-btn" onclick="toggleFavoriteAsset('${asset.id}', event)" style="position: absolute; top: 12px; right: 12px; z-index: 15; width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); transition: all 0.2s;">
+            <span class="heart-icon" id="heart-icon-${asset.id}" style="color: rgba(255,255,255,0.75); font-size: 15px;">${heartEmoji}</span>
           </div>
 
-          <div class="asset-timer-row ${isLive ? '' : 'asset-timer-upcoming'}" id="timer-card-${asset.id}">
-            <span class="timer-label">${isLive ? 'Còn lại:' : 'Mở thầu:'}</span>
-            <span class="timer-countdown" id="timer-digits-${asset.id}">--d : --h : --m : --s</span>
+          <span class="badge ${isLive ? 'badge-live' : 'badge-upcoming'} asset-badge-floating">${isLive ? 'ĐANG ĐẤU' : 'SẮP MỞ'}</span>
+        </div>
+        <div class="asset-body" style="padding: var(--spacing-md); flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+          <div class="asset-title" style="font-size: 14px; font-weight: 700; color: #fff; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 40px; margin-bottom: 8px;">${asset.name}</div>
+          
+          <!-- Single Pricing row with circle icon matching Figures 2 & 3 -->
+          <div class="asset-price-block" style="display: flex; align-items: center; gap: var(--spacing-sm); margin-top: 8px; margin-bottom: 4px;">
+            <div class="price-circle-icon" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span style="font-size: 13px; color: var(--primary); font-weight: 800;">đ</span>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+              <span style="font-size: 11px; color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.3px;">${priceLabel}</span>
+              <span class="asset-price-major" style="font-size: 16px; font-weight: 800; color: #fff; line-height: 1.2;">${priceVal.toLocaleString()} đ</span>
+            </div>
           </div>
+        </div>
+
+        <!-- Bottom full-width colored status timer block -->
+        <div class="asset-timer-full-block timer-state-ended" id="timer-card-${asset.id}">
+          <span class="timer-label" id="timer-label-${asset.id}">--:</span>
+          <span class="timer-countdown" id="timer-digits-${asset.id}">--d : --h : --m : --s</span>
         </div>
       </div>
     `;
@@ -469,17 +488,66 @@ function renderAssetGrid(assetsList, containerEl, isLive = true) {
 
   // Bootstrap real time ticking clock intervals for card listing
   assetsList.forEach(asset => {
+    const cardEl = document.getElementById(`timer-card-${asset.id}`);
+    const labelEl = document.getElementById(`timer-label-${asset.id}`);
     const digitsEl = document.getElementById(`timer-digits-${asset.id}`);
-    if (!digitsEl) return;
+    if (!digitsEl || !cardEl || !labelEl) return;
 
-    let targetTime = new Date(isLive ? asset.endTime : asset.startTime).getTime();
-    
+    const regTime = new Date(asset.regDeadline.replace(' ', 'T')).getTime();
+    const startTime = new Date(asset.startTime.replace(' ', 'T')).getTime();
+    const endTime = new Date(asset.endTime.replace(' ', 'T')).getTime();
+
+    const formatDateStr = (str) => {
+      if (!str) return "";
+      const parts = str.split(" ");
+      if (parts.length < 2) return str;
+      const dateParts = parts[0].split("-");
+      if (dateParts.length < 3) return str;
+      return `${dateParts[2]}/${dateParts[1]}/${dateParts[0]} ${parts[1]}`;
+    };
+
     const updateTick = () => {
-      let now = new Date().getTime();
-      let diff = targetTime - now;
+      const now = Date.now();
 
+      let targetTime;
+      let labelText;
+      let stateClass;
+      let isEndedPhase = false;
+
+      if (now < regTime) {
+        // Phase 1: Registration (Blue)
+        targetTime = regTime;
+        labelText = "Hết hạn đăng ký sau:";
+        stateClass = "timer-state-reg";
+      } else if (now < startTime) {
+        // Phase 2: Waiting (Yellow)
+        targetTime = startTime;
+        labelText = "Bắt đầu đấu giá sau:";
+        stateClass = "timer-state-waiting";
+      } else if (now < endTime) {
+        // Phase 3: Live (Green)
+        targetTime = endTime;
+        labelText = "Thời gian kết thúc sau:";
+        stateClass = "timer-state-live";
+      } else {
+        // Phase 4: Ended (Gray)
+        labelText = "Thời gian kết thúc:";
+        stateClass = "timer-state-ended";
+        isEndedPhase = true;
+      }
+
+      // Update classes and label dynamically
+      cardEl.className = `asset-timer-full-block ${stateClass}`;
+      labelEl.innerText = labelText;
+
+      if (isEndedPhase) {
+        digitsEl.innerText = formatDateStr(asset.endTime);
+        return;
+      }
+
+      let diff = targetTime - now;
       if (diff <= 0) {
-        digitsEl.innerText = "00d : 00h : 00m : 00s";
+        digitsEl.innerText = "0d : 0h : 0m : 0s";
         return;
       }
 
@@ -488,7 +556,8 @@ function renderAssetGrid(assetsList, containerEl, isLive = true) {
       let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       let seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-      digitsEl.innerText = `${days.toString().padStart(2, '0')}d : ${hours.toString().padStart(2, '0')}h : ${minutes.toString().padStart(2, '0')}m : ${seconds.toString().padStart(2, '0')}s`;
+      // Render countdown matching mockup style (e.g. 0d : 22h : 8m : 13s)
+      digitsEl.innerText = `${days}d : ${hours}h : ${minutes}m : ${seconds}s`;
     };
 
     updateTick();
@@ -496,6 +565,41 @@ function renderAssetGrid(assetsList, containerEl, isLive = true) {
     homepageTimers.push(interval);
   });
 }
+
+// Global favorite heart button toggler
+window.toggleFavoriteAsset = function(assetId, event) {
+  if (event) event.stopPropagation(); // Stop navigation click from card
+  
+  if (!CustomerDB.state.currentUser) {
+    showToast("Yêu cầu đăng nhập 🔑", "Vui lòng đăng nhập hệ thống để lưu danh mục yêu thích.", "warning");
+    appRouter.navigate("login");
+    return;
+  }
+  
+  if (!CustomerDB.state.favorites) {
+    CustomerDB.state.favorites = [];
+  }
+  
+  const index = CustomerDB.state.favorites.indexOf(assetId);
+  const heartIcon = document.getElementById(`heart-icon-${assetId}`);
+  
+  if (index > -1) {
+    CustomerDB.state.favorites.splice(index, 1);
+    if (heartIcon) heartIcon.innerText = "🤍";
+    showToast("Đã bỏ yêu thích 💔", "Đã xóa tài sản khỏi danh sách quan tâm.");
+  } else {
+    CustomerDB.state.favorites.push(assetId);
+    if (heartIcon) heartIcon.innerText = "❤️";
+    showToast("Đã thêm yêu thích ❤️", "Đã lưu tài sản vào danh sách quan tâm của bạn.");
+  }
+  
+  CustomerDB.save();
+
+  // Dynamically refresh favorites section if user is viewing it reactively
+  if (appRouter.activeView === "profile" && currentProfileSec === "favorites") {
+    renderFavoritesSection();
+  }
+};
 
 function handleAssetRegistration(assetId) {
   if (!CustomerDB.state.currentUser) {
@@ -518,9 +622,76 @@ function handleAssetRegistration(assetId) {
   }
 }
 
-function handleCategoryDropdownClick(categorySlug) {
+window.toggleHeaderDropdown = function(dropdownId, event) {
+  if (event) {
+    event.stopPropagation();
+  }
+  const dropdown = document.getElementById(dropdownId);
+  if (!dropdown) return;
+  
+  // Close all other dropdowns
+  document.querySelectorAll(".dropdown-menu").forEach(d => {
+    if (d.id !== dropdownId) {
+      d.classList.remove("show-dropdown");
+    }
+  });
+  
+  dropdown.classList.toggle("show-dropdown");
+};
+
+window.handleCategoryDropdownClick = function(categorySlug, event) {
+  if (event) {
+    event.stopPropagation();
+  }
+  // Close all dropdowns
+  document.querySelectorAll(".dropdown-menu").forEach(d => {
+    d.classList.remove("show-dropdown");
+  });
+  
   handleCategoryCardClick(categorySlug);
-}
+};
+
+window.handleRoomsCategoryDropdownClick = function(categorySlug, event) {
+  if (event) {
+    event.stopPropagation();
+  }
+  // Close all dropdowns
+  document.querySelectorAll(".dropdown-menu").forEach(d => {
+    d.classList.remove("show-dropdown");
+  });
+  
+  activeRoomsCategoryFilter = categorySlug;
+  
+  appRouter.navigate('rooms');
+  setTimeout(() => {
+    // Reset search input
+    const searchInput = document.getElementById("rooms-search-input");
+    if (searchInput) searchInput.value = "";
+    
+    // Highlight ALL status pill
+    activeRoomsFilter = "ALL";
+    const pills = document.querySelectorAll("#rooms-status-pills .filter-pill");
+    pills.forEach(p => p.classList.remove("active"));
+    if (pills.length > 0) pills[0].classList.add("active");
+    
+    initRoomsListView();
+  }, 100);
+};
+
+window.clearRoomsCategoryFilter = function(event) {
+  if (event) {
+    event.stopPropagation();
+  }
+  activeRoomsCategoryFilter = "ALL";
+  initRoomsListView();
+};
+
+// Global click listener to dismiss header dropdowns when clicking anywhere outside
+document.addEventListener("click", () => {
+  document.querySelectorAll(".dropdown-menu").forEach(d => {
+    d.classList.remove("show-dropdown");
+  });
+});
 
 function handleBiddingDropdownClick(assetId) {
   if (!CustomerDB.state.currentUser) {
@@ -662,6 +833,8 @@ function initProfileView(sectionId) {
     renderHistorySection();
   } else if (sectionId === "security") {
     renderSecuritySection();
+  } else if (sectionId === "favorites") {
+    renderFavoritesSection();
   }
 }
 
@@ -1053,6 +1226,41 @@ window.filterCartList = function() {
   currentCartSearchQuery = input ? input.value.trim().toLowerCase() : "";
   renderCartSection();
 };
+function renderFavoritesSection() {
+  const wrapper = document.getElementById("favorites-content-wrapper");
+  const countLabel = document.getElementById("favorites-count-label");
+  if (!wrapper) return;
+
+  const favoritesList = CustomerDB.state.favorites || [];
+  const favoritedAssets = CustomerDB.state.assets.filter(a => favoritesList.includes(a.id));
+
+  // Update count label
+  if (favoritedAssets.length > 0) {
+    if (countLabel) {
+      countLabel.innerText = `Tìm thấy ${favoritedAssets.length} tài sản yêu thích`;
+      countLabel.style.color = "var(--primary)";
+    }
+  } else {
+    if (countLabel) {
+      countLabel.innerText = "Chưa có tài sản";
+      countLabel.style.color = "var(--on-surface-variant)";
+    }
+  }
+
+  if (favoritedAssets.length === 0) {
+    wrapper.innerHTML = `
+      <div style="text-align: center; padding: 48px; color: var(--on-surface-variant); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--spacing-md); flex: 1; min-height: 300px;">
+        <span style="font-size: 40px; filter: drop-shadow(0 0 10px rgba(255, 107, 107, 0.3));">💖</span>
+        <p style="margin: 0; font-size: 14px; color: var(--on-surface-variant);">Bạn chưa thêm cuộc đấu giá nào vào danh sách yêu thích.</p>
+        <button class="btn btn-primary" onclick="appRouter.navigate('search')" style="padding: 8px 16px; font-size: 12.5px; font-weight: 700; margin-top: 8px;">Khám phá tài sản ngay</button>
+      </div>
+    `;
+  } else {
+    wrapper.innerHTML = `<div class="assets-grid" id="favorites-assets-grid" style="grid-template-columns: repeat(2, 1fr) !important; gap: var(--spacing-lg); width: 100%;"></div>`;
+    const gridContainer = document.getElementById("favorites-assets-grid");
+    renderAssetGrid(favoritedAssets, gridContainer, true);
+  }
+}
 
 function renderCartSection() {
   const container = document.getElementById("cart-cards-container");
@@ -1633,6 +1841,8 @@ function initBiddingRoomView(assetId) {
   if (biddingRoomInterval) clearInterval(biddingRoomInterval);
   if (countdownClockInterval) clearInterval(countdownClockInterval);
 
+  window.currentBiddingPhase = null;
+
   const asset = CustomerDB.state.assets.find(a => a.id === assetId);
   if (!asset) return;
 
@@ -1700,31 +1910,35 @@ function initBiddingRoomView(assetId) {
   // Start real-time countdown clocks - Multi-stage logic
   const clockEl = document.getElementById("room-countdown-clock");
   const labelEl = document.getElementById("room-countdown-label");
-
   const tickClock = () => {
-    const regDeadlineTime = new Date(asset.regDeadline).getTime();
-    const startTime = new Date(asset.startTime).getTime();
-    const endTime = new Date(asset.endTime).getTime();
+    const regDeadlineTime = new Date(asset.regDeadline.replace(' ', 'T')).getTime();
+    const startTime = new Date(asset.startTime.replace(' ', 'T')).getTime();
+    const endTime = new Date(asset.endTime.replace(' ', 'T')).getTime();
     const now = Date.now();
     
     let diff = 0;
     let labelText = "Thời gian còn lại:";
     let isClosed = false;
+    let phase = "";
 
     if (now < regDeadlineTime) {
       // Stage 1: Registration open
+      phase = "REGISTRATION";
       diff = regDeadlineTime - now;
       labelText = "Thời gian đăng ký còn lại:";
     } else if (now < startTime) {
       // Stage 2: Preparing for auction
+      phase = "WAITING";
       diff = startTime - now;
       labelText = "Thời gian chuẩn bị đấu:";
     } else if (now < endTime) {
       // Stage 3: Live Bidding ongoing
+      phase = "LIVE";
       diff = endTime - now;
       labelText = "Thời gian thầu còn lại:";
     } else {
       // Stage 4: Closed
+      phase = "ENDED";
       diff = 0;
       labelText = "Phiên đấu giá đã kết thúc";
       isClosed = true;
@@ -1732,11 +1946,24 @@ function initBiddingRoomView(assetId) {
 
     if (labelEl) labelEl.innerText = labelText;
 
+    // Automatic phase transition detection!
+    if (window.currentBiddingPhase !== phase) {
+      const oldPhase = window.currentBiddingPhase;
+      window.currentBiddingPhase = phase;
+      
+      // Update interactive board states immediately!
+      updateBiddingBoard();
+      
+      // If we crossed from active LIVE to ENDED, trigger the result modal!
+      if (phase === "ENDED" && oldPhase !== null) {
+        triggerAuctionResultPopup();
+      }
+    }
+
     if (isClosed || diff <= 0) {
       clockEl.innerText = "00d : 00h : 00m : 00s";
       clearInterval(countdownClockInterval);
       clearInterval(biddingRoomInterval);
-      updateBiddingBoard(); // update states instantly when transitioning to closed
       return;
     }
 
@@ -1870,8 +2097,8 @@ function updateBiddingConsolePrices() {
   const depositPaid = reg ? reg.depositPaid : false;
   
   const now = Date.now();
-  const startTime = new Date(asset.startTime).getTime();
-  const endTime = new Date(asset.endTime).getTime();
+  const startTime = new Date(asset.startTime.replace(' ', 'T')).getTime();
+  const endTime = new Date(asset.endTime.replace(' ', 'T')).getTime();
 
   // Dynamic bidder code display
   const bidderCodeEl = document.getElementById("room-my-bidder-code");
@@ -2380,6 +2607,8 @@ customElements.define("footer-section", FooterSection);
 function startHeaderClock() {
   const timeEl = document.getElementById("header-clock-time");
   const dateEl = document.getElementById("header-clock-date");
+  const mTimeEl = document.getElementById("mobile-drawer-clock-time");
+  const mDateEl = document.getElementById("mobile-drawer-clock-date");
   if (!timeEl || !dateEl) return;
 
   const update = () => {
@@ -2389,12 +2618,14 @@ function startHeaderClock() {
     const minutes = now.getMinutes().toString().padStart(2, '0');
     const seconds = now.getSeconds().toString().padStart(2, '0');
     timeEl.innerText = `${hours}:${minutes}:${seconds}`;
+    if (mTimeEl) mTimeEl.innerText = `${hours}:${minutes}:${seconds}`;
 
     // Date format: DD/MM/YYYY
     const day = now.getDate().toString().padStart(2, '0');
     const month = (now.getMonth() + 1).toString().padStart(2, '0');
     const year = now.getFullYear();
     dateEl.innerText = `${day}/${month}/${year}`;
+    if (mDateEl) mDateEl.innerText = `${day}/${month}/${year}`;
   };
 
   update();
@@ -2486,6 +2717,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 // --- Rooms Listing View (Phòng đấu giá) controller functions ---
 let activeRoomsFilter = "ALL";
+let activeRoomsCategoryFilter = "ALL";
 let roomsTimers = [];
 
 function initRoomsListView() {
@@ -2503,6 +2735,23 @@ function initRoomsListView() {
   // Filter based on activeRoomsFilter
   if (activeRoomsFilter !== "ALL") {
     assets = assets.filter(a => a.status === activeRoomsFilter);
+  }
+
+  // Filter based on activeRoomsCategoryFilter
+  if (activeRoomsCategoryFilter !== "ALL") {
+    assets = assets.filter(a => a.category === activeRoomsCategoryFilter);
+  }
+
+  // Update category indicator DOM
+  const indicator = document.getElementById("rooms-category-indicator");
+  if (indicator) {
+    if (activeRoomsCategoryFilter !== "ALL") {
+      const catNames = { "dat": "🏢 Đất", "xe": "🚗 Xe cộ", "tranh": "🎨 Tranh" };
+      document.getElementById("rooms-active-category-name").innerText = catNames[activeRoomsCategoryFilter] || activeRoomsCategoryFilter;
+      indicator.style.display = "flex";
+    } else {
+      indicator.style.display = "none";
+    }
   }
 
   // Filter based on search query
@@ -2747,6 +2996,10 @@ let detailImages = [];
 let activeDetailTab = 0;
 
 function initDetailAssetView(assetId) {
+  // Clear any existing active detail page timers
+  detailTimers.forEach(t => clearInterval(t));
+  detailTimers = [];
+
   const asset = CustomerDB.state.assets.find(a => a.id === assetId);
   if (!asset) return;
 
@@ -2882,13 +3135,45 @@ function renderDetailActionCard() {
       `;
       subtext = "Trạng thái: Đăng ký thành công. Vui lòng nộp tiền đặt trước để hoàn thiện hồ sơ.";
     } else {
-      actionHtml = `<div class="detail-alert-banner banner-waiting">ĐÃ NỘP CỌC (ĐANG CHỜ MỞ THẦU)</div>`;
+      actionHtml = `
+        <div class="detail-alert-banner banner-waiting" style="margin-bottom: 12px;">ĐÃ NỘP CỌC (ĐANG CHỜ MỞ THẦU)</div>
+        <div class="detail-upcoming-countdown" id="detail-upcoming-countdown" style="background: rgba(212, 175, 55, 0.05); border: 1px dashed var(--primary); border-radius: var(--radius-md); padding: var(--spacing-md); text-align: center; margin-bottom: 16px;">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--primary); font-weight: 800; margin-bottom: 6px; letter-spacing: 0.5px;">⏰ Thời gian đếm ngược đến giờ mở thầu:</div>
+          <div class="countdown-digits" id="detail-countdown-clock" style="font-family: var(--font-mono); font-size: 20px; font-weight: 800; color: #ffb800; text-shadow: 0 0 10px rgba(255, 184, 0, 0.2);">--d : --h : --m : --s</div>
+        </div>
+      `;
       subtext = `Trạng thái: Hồ sơ hoàn thiện. Mã thợ thầu cấp phát: ${reg.bidderCode}. Vui lòng chờ đến ngày mở thầu.`;
     }
   }
 
   container.innerHTML = actionHtml;
   if (subtextEl) subtextEl.innerText = subtext;
+
+  // Bootstrap real time ticking clock interval for detail page upcoming countdown
+  const detailClock = document.getElementById("detail-countdown-clock");
+  if (detailClock && asset) {
+    let targetTime = new Date(asset.startTime.replace(' ', 'T')).getTime();
+    const updateDetailTick = () => {
+      let now = Date.now();
+      let diff = targetTime - now;
+
+      if (diff <= 0) {
+        detailClock.innerText = "00d : 00h : 00m : 00s";
+        return;
+      }
+
+      let days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      let hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      let seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      detailClock.innerText = `${days.toString().padStart(2, '0')}d : ${hours.toString().padStart(2, '0')}h : ${minutes.toString().padStart(2, '0')}m : ${seconds.toString().padStart(2, '0')}s`;
+    };
+
+    updateDetailTick();
+    const interval = setInterval(updateDetailTick, 1000);
+    detailTimers.push(interval);
+  }
 }
 
 window.changeDetailTab = function(tabIndex) {
@@ -3021,4 +3306,367 @@ function renderDetailTabPanel() {
 
   panel.innerHTML = html;
 }
+
+// =========================================================================
+// --- CUSTOM EXTENSIONS: FIREWORKS CANVAS ENGINE, POPUPS & SIMULATOR ---
+// =========================================================================
+
+// --- Premium Fireworks Canvas Engine ---
+let fireworksCanvas = null;
+let fireworksCtx = null;
+let fireworksParticles = [];
+let fireworksFires = [];
+
+class Firework {
+  constructor(x, y, targetX, targetY) {
+    this.x = x;
+    this.y = y;
+    this.startX = x;
+    this.startY = y;
+    this.targetX = targetX;
+    this.targetY = targetY;
+    this.distanceToTarget = Math.hypot(targetX - x, targetY - y);
+    this.distanceTraveled = 0;
+    this.angle = Math.atan2(targetY - y, targetX - x);
+    this.speed = 3;
+    this.acceleration = 1.05;
+    this.brightness = Math.random() * 20 + 60;
+    this.hue = Math.random() * 360;
+    this.coordinates = [];
+    this.coordinateCount = 3;
+    while (this.coordinateCount--) {
+      this.coordinates.push([this.x, this.y]);
+    }
+  }
+
+  update(index) {
+    this.coordinates.pop();
+    this.coordinates.unshift([this.x, this.y]);
+    this.speed *= this.acceleration;
+    let vx = Math.cos(this.angle) * this.speed;
+    let vy = Math.sin(this.angle) * this.speed;
+    this.distanceTraveled = Math.hypot(this.targetX - this.startX, this.targetY - this.startY) - Math.hypot(this.targetX - (this.x + vx), this.targetY - (this.y + vy));
+
+    if (this.distanceTraveled >= this.distanceToTarget) {
+      createExplosion(this.targetX, this.targetY, this.hue);
+      fireworksFires.splice(index, 1);
+    } else {
+      this.x += vx;
+      this.y += vy;
+    }
+  }
+
+  draw() {
+    fireworksCtx.beginPath();
+    fireworksCtx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
+    fireworksCtx.lineTo(this.x, this.y);
+    fireworksCtx.strokeStyle = `hsl(${this.hue}, 100%, ${this.brightness}%)`;
+    fireworksCtx.lineWidth = 2;
+    fireworksCtx.stroke();
+  }
+}
+
+class Particle {
+  constructor(x, y, hue) {
+    this.x = x;
+    this.y = y;
+    this.coordinates = [];
+    this.coordinateCount = 5;
+    while (this.coordinateCount--) {
+      this.coordinates.push([this.x, this.y]);
+    }
+    this.angle = Math.random() * Math.PI * 2;
+    this.speed = Math.random() * 7 + 2;
+    this.gravity = 0.12;
+    this.friction = 0.95;
+    this.hue = hue + (Math.random() * 40 - 20); // slight variance
+    this.brightness = Math.random() * 20 + 60;
+    this.alpha = 1;
+    this.decay = Math.random() * 0.012 + 0.008;
+  }
+
+  update(index) {
+    this.coordinates.pop();
+    this.coordinates.unshift([this.x, this.y]);
+    this.speed *= this.friction;
+    this.x += Math.cos(this.angle) * this.speed;
+    this.y += Math.sin(this.angle) * this.speed + this.gravity;
+    this.alpha -= this.decay;
+
+    if (this.alpha <= this.decay) {
+      fireworksParticles.splice(index, 1);
+    }
+  }
+
+  draw() {
+    fireworksCtx.beginPath();
+    fireworksCtx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
+    fireworksCtx.lineTo(this.x, this.y);
+    
+    // Emerald green and vivid gold tones
+    if (Math.random() > 0.4) {
+      fireworksCtx.strokeStyle = `hsla(${this.hue}, 100%, ${this.brightness}%, ${this.alpha})`;
+    } else {
+      // Golden overlay
+      fireworksCtx.strokeStyle = `rgba(212, 175, 55, ${this.alpha})`;
+    }
+    fireworksCtx.lineWidth = Math.random() * 1.5 + 0.5;
+    fireworksCtx.stroke();
+  }
+}
+
+function createExplosion(x, y, hue) {
+  let count = 40;
+  while (count--) {
+    fireworksParticles.push(new Particle(x, y, hue));
+  }
+}
+
+function startFireworks() {
+  fireworksCanvas = document.getElementById("fireworks-canvas");
+  if (!fireworksCanvas) return;
+  fireworksCtx = fireworksCanvas.getContext("2d");
+  
+  fireworksCanvas.width = window.innerWidth;
+  fireworksCanvas.height = window.innerHeight;
+  fireworksCanvas.style.display = "block";
+  
+  window.fireworksActive = true;
+  fireworksParticles = [];
+  fireworksFires = [];
+  
+  window.addEventListener("resize", resizeFireworksCanvas);
+  requestAnimationFrame(fireworksLoop);
+}
+
+function stopFireworks() {
+  window.fireworksActive = false;
+  if (fireworksCanvas) {
+    fireworksCanvas.style.display = "none";
+  }
+  window.removeEventListener("resize", resizeFireworksCanvas);
+}
+
+function resizeFireworksCanvas() {
+  if (fireworksCanvas) {
+    fireworksCanvas.width = window.innerWidth;
+    fireworksCanvas.height = window.innerHeight;
+  }
+}
+
+function fireworksLoop() {
+  if (!window.fireworksActive) return;
+
+  requestAnimationFrame(fireworksLoop);
+  
+  fireworksCtx.globalCompositeOperation = 'destination-out';
+  fireworksCtx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+  fireworksCtx.fillRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+  fireworksCtx.globalCompositeOperation = 'lighter';
+  
+  if (Math.random() < 0.04) {
+    let startX = fireworksCanvas.width / 2 + (Math.random() * 200 - 100);
+    let startY = fireworksCanvas.height;
+    let targetX = Math.random() * fireworksCanvas.width;
+    let targetY = Math.random() * (fireworksCanvas.height * 0.6);
+    fireworksFires.push(new Firework(startX, startY, targetX, targetY));
+  }
+  
+  let i = fireworksFires.length;
+  while (i--) {
+    fireworksFires[i].update(i);
+    if (fireworksFires[i]) fireworksFires[i].draw();
+  }
+  
+  let j = fireworksParticles.length;
+  while (j--) {
+    fireworksParticles[j].update(j);
+    if (fireworksParticles[j]) fireworksParticles[j].draw();
+  }
+}
+
+// --- Dynamic Bidding Results Popup Handler ---
+function triggerAuctionResultPopup() {
+  const asset = currentBiddingAsset;
+  if (!asset) return;
+
+  const reg = CustomerDB.state.registeredAuctions.find(r => r.assetId === asset.id);
+  const isRegistered = !!reg;
+  const depositPaid = reg ? reg.depositPaid : false;
+
+  const isWinner = isRegistered && depositPaid && asset.lastBidder && (
+    asset.lastBidder.includes("Bạn") ||
+    asset.lastBidder.includes("Tôi") ||
+    (reg.bidderCode && asset.lastBidder.includes(reg.bidderCode))
+  );
+
+  if (isWinner) {
+    document.getElementById("winner-asset-name").innerText = asset.name;
+    document.getElementById("winner-final-price").innerText = `${(asset.currentBid || asset.startPrice).toLocaleString()} đ`;
+    openModal("modal-bidding-winner");
+    startFireworks();
+    
+    // Seed win details in local DB too
+    const entry = CustomerDB.state.biddingHistory.find(b => b.assetId === asset.id);
+    if (entry) {
+      entry.result = "THẮNG";
+      CustomerDB.save();
+    }
+  } else {
+    document.getElementById("loser-asset-name").innerText = asset.name;
+    openModal("modal-bidding-loser");
+  }
+}
+
+window.handleCloseResultModal = function(isWinner) {
+  if (isWinner) {
+    closeModal("modal-bidding-winner");
+  } else {
+    closeModal("modal-bidding-loser");
+  }
+  stopFireworks();
+  
+  // Refresh layout statically so it matches ENDED state
+  if (currentBiddingAsset) {
+    initBiddingRoomView(currentBiddingAsset.id);
+  }
+};
+
+// --- Bidding Phase Simulator Logic ---
+window.simulatePhase = function(phaseType) {
+  const asset = currentBiddingAsset;
+  if (!asset) return;
+
+  const now = Date.now();
+  
+  if (phaseType === 'REGISTRATION') {
+    // Stage 1: Registration open (now < regDeadline < startTime < endTime)
+    asset.regDeadline = formatSimDate(now + 120000); // 2 mins from now
+    asset.startTime = formatSimDate(now + 240000);   // 4 mins from now
+    asset.endTime = formatSimDate(now + 480000);     // 8 mins from now
+    asset.status = "LIVE";
+    
+    // Reset registration to allow user to register again
+    const regIndex = CustomerDB.state.registeredAuctions.findIndex(r => r.assetId === asset.id);
+    if (regIndex > -1) {
+      CustomerDB.state.registeredAuctions.splice(regIndex, 1);
+    }
+    
+    showToast("Giả lập: ĐĂNG KÝ ⏰", "Thời gian đã được điều chỉnh. Phiên đang mở đăng ký tham gia.", "warning");
+    
+  } else if (phaseType === 'WAITING') {
+    // Stage 2: Preparing for auction (regDeadline <= now < startTime < endTime)
+    asset.regDeadline = formatSimDate(now - 60000);  // 1 min ago
+    asset.startTime = formatSimDate(now + 120000);   // 2 mins from now
+    asset.endTime = formatSimDate(now + 360000);     // 6 mins from now
+    asset.status = "LIVE";
+    
+    // Auto register the user with cọc paid to test this stage
+    forceRegisterAndDeposit(asset);
+    
+    showToast("Giả lập: CHỜ ĐẤU GIÁ ⌛", "Đã đóng thời gian đăng ký. Vô hiệu hóa nút trả giá.", "warning");
+    
+  } else if (phaseType === 'LIVE') {
+    // Stage 3: Live Bidding ongoing (regDeadline < startTime <= now < endTime)
+    asset.regDeadline = formatSimDate(now - 120000); // 2 mins ago
+    asset.startTime = formatSimDate(now - 60000);    // 1 min ago
+    asset.endTime = formatSimDate(now + 180000);     // 3 mins from now
+    asset.status = "LIVE";
+    
+    forceRegisterAndDeposit(asset);
+    
+    showToast("Giả lập: ĐẤU GIÁ LIVE 🟢", "Bắt đầu mở thầu trực tiếp thời gian thực! Đã mở khóa nút trả giá.", "success");
+    
+  } else if (phaseType === 'ENDED') {
+    // Stage 4: Closed (now >= endTime)
+    asset.regDeadline = formatSimDate(now - 240000);
+    asset.startTime = formatSimDate(now - 120000);
+    asset.endTime = formatSimDate(now - 5000);      // 5 seconds ago
+    asset.status = "ENDED";
+    
+    showToast("Giả lập: KẾT THÚC 🔴", "Đã chuyển tài sản sang trạng thái kết thúc phiên đấu.", "danger");
+  }
+  
+  CustomerDB.save();
+  
+  // Reload the Bidding Room layout!
+  initBiddingRoomView(asset.id);
+};
+
+window.simulateFiveSecondsLeft = function() {
+  const asset = currentBiddingAsset;
+  if (!asset) return;
+
+  const now = Date.now();
+  
+  forceRegisterAndDeposit(asset);
+  
+  // Set endTime exactly 6 seconds in the future
+  asset.regDeadline = formatSimDate(now - 120000);
+  asset.startTime = formatSimDate(now - 60000);
+  asset.endTime = formatSimDate(now + 6000);
+  asset.status = "LIVE";
+  
+  CustomerDB.save();
+  
+  initBiddingRoomView(asset.id);
+  
+  showToast("Giả lập: 5 GIÂY CUỐI ⚡", "Hãy đếm ngược để theo dõi popup nổ và kiểm tra pháo hoa Canvas!", "warning");
+};
+
+function formatSimDate(timestamp) {
+  return new Date(timestamp).toISOString();
+}
+
+function forceRegisterAndDeposit(asset) {
+  let reg = CustomerDB.state.registeredAuctions.find(r => r.assetId === asset.id);
+  if (!reg) {
+    CustomerDB.registerForAuction(asset.id);
+    reg = CustomerDB.state.registeredAuctions.find(r => r.assetId === asset.id);
+  }
+  if (reg && !reg.depositPaid) {
+    reg.depositPaid = true;
+    reg.status = "DEPOSITED";
+    reg.bidderCode = reg.bidderCode || `BID_9912`;
+    CustomerDB.save();
+  }
+}
+
+// --- Screen VIII: Mobile RWD Control Handlers ---
+
+window.toggleMobileMenu = function() {
+  const drawer = document.getElementById("mobile-drawer");
+  const overlay = document.getElementById("mobile-drawer-overlay");
+  if (!drawer || !overlay) return;
+
+  const isActive = drawer.classList.contains("active");
+  if (isActive) {
+    drawer.classList.remove("active");
+    overlay.classList.remove("active");
+  } else {
+    drawer.classList.add("active");
+    overlay.classList.add("active");
+  }
+};
+
+window.toggleMobileFilter = function() {
+  const filterSidebar = document.getElementById("filter-sidebar");
+  const overlay = document.getElementById("filter-sidebar-overlay");
+  if (!filterSidebar || !overlay) return;
+
+  const isActive = filterSidebar.classList.contains("mobile-active");
+  if (isActive) {
+    filterSidebar.classList.remove("mobile-active");
+    overlay.classList.remove("active");
+  } else {
+    filterSidebar.classList.add("mobile-active");
+    overlay.classList.add("active");
+  }
+};
+
+window.toggleSimulatorPanel = function() {
+  const panel = document.getElementById("bidding-simulator-panel");
+  if (!panel) return;
+  panel.classList.toggle("active");
+};
 

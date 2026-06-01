@@ -19,6 +19,10 @@ const CustomerDB = {
         if (!this.state.registeredAuctions) this.state.registeredAuctions = [];
         if (!this.state.biddingHistory) this.state.biddingHistory = [];
         if (!this.state.signatures) this.state.signatures = {};
+        if (!this.state.favorites) this.state.favorites = [];
+        
+        // Auto-recalculate mock room times so they are perpetually relative to 'now'
+        this.adjustMockTimes();
         
       } catch (e) {
         console.error("Error parsing saved DB, resetting...", e);
@@ -64,8 +68,54 @@ const CustomerDB = {
           signed: false
         }
       ],
-      signatures: {} // key is assetId
+      signatures: {}, // key is assetId
+      favorites: []
     };
+    this.adjustMockTimes();
+  },
+
+  adjustMockTimes() {
+    const now = Date.now();
+    const format = (ts) => new Date(ts).toISOString();
+
+    this.state.assets.forEach(asset => {
+      if (asset.id === "BID_9921") {
+        asset.regDeadline = format(now - 300000);  // -5m
+        asset.startTime = format(now - 120000);    // -2m
+        asset.endTime = format(now + 600000);      // +10m (15m from regDeadline)
+        asset.status = "LIVE";
+      } else if (asset.id === "BID_9922") {
+        asset.regDeadline = format(now - 360000);  // -6m
+        asset.startTime = format(now - 180000);    // -3m
+        asset.endTime = format(now + 540000);      // +9m (15m from regDeadline)
+        asset.status = "LIVE";
+      } else if (asset.id === "BID_9923") {
+        asset.regDeadline = format(now + 300000);  // +5m
+        asset.startTime = format(now + 600000);    // +10m
+        asset.endTime = format(now + 1200000);     // +20m (15m from regDeadline)
+        asset.status = "UPCOMING";
+      } else if (asset.id === "BID_9924") {
+        asset.regDeadline = format(now - 120000);  // -2m
+        asset.startTime = format(now + 180000);    // +3m
+        asset.endTime = format(now + 780000);      // +13m (15m from regDeadline)
+        asset.status = "UPCOMING";
+      } else if (asset.id === "BID_9925") {
+        asset.regDeadline = format(now - 1800000); // -30m
+        asset.startTime = format(now - 1500000);   // -25m
+        asset.endTime = format(now - 900000);      // -15m (15m from regDeadline)
+        asset.status = "ENDED";
+      } else if (asset.id === "BID_9926") {
+        asset.regDeadline = format(now + 180000);  // +3m
+        asset.startTime = format(now + 480000);    // +8m
+        asset.endTime = format(now + 1080000);     // +18m (15m from regDeadline)
+        asset.status = "UPCOMING";
+      } else if (asset.id === "BID_9927") {
+        asset.regDeadline = format(now - 2700000); // -45m
+        asset.startTime = format(now - 2400000);   // -40m
+        asset.endTime = format(now - 1800000);     // -30m (15m from regDeadline)
+        asset.status = "ENDED";
+      }
+    });
     this.save();
   },
 

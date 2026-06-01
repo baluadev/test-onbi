@@ -27,8 +27,22 @@
         
         <ul class="nav-menu">
           <li class="nav-link active" onclick="appRouter.navigate('homepage')" data-route="homepage">Trang chủ</li>
-          <li class="nav-link" onclick="appRouter.navigate('search')" data-route="search">Cuộc đấu giá</li>
-          <li class="nav-link" onclick="appRouter.navigate('rooms')" data-route="rooms">Phòng đấu giá</li>
+          <li class="nav-link dropdown-parent" data-route="search" id="nav-danh-muc" onclick="toggleHeaderDropdown('danh-muc-dropdown', event)">
+            Danh mục đấu giá <span class="arrow-icon" style="font-size: 10px; margin-left: 2px;">▼</span>
+            <div class="dropdown-menu" id="danh-muc-dropdown">
+              <a onclick="handleCategoryDropdownClick('dat', event)">🏢 Đất</a>
+              <a onclick="handleCategoryDropdownClick('xe', event)">🚗 Xe cộ</a>
+              <a onclick="handleCategoryDropdownClick('tranh', event)">🎨 Tranh</a>
+            </div>
+          </li>
+          <li class="nav-link dropdown-parent" data-route="rooms" id="nav-phong-dau" onclick="toggleHeaderDropdown('phong-dau-dropdown', event)">
+            Phòng đấu giá <span class="arrow-icon" style="font-size: 10px; margin-left: 2px;">▼</span>
+            <div class="dropdown-menu" id="phong-dau-dropdown">
+              <a onclick="handleRoomsCategoryDropdownClick('dat', event)">🏢 Đất</a>
+              <a onclick="handleRoomsCategoryDropdownClick('xe', event)">🚗 Xe cộ</a>
+              <a onclick="handleRoomsCategoryDropdownClick('tranh', event)">🎨 Tranh</a>
+            </div>
+          </li>
           <li class="nav-link" onclick="openGlobalNewsModal()">Tin tức & Thông báo</li>
           <li class="nav-link" onclick="alert('ONBI AUCTION là cổng đấu giá tài sản trực tuyến hàng đầu, vận hành chính quy và công khai.')">Về chúng tôi</li>
         </ul>
@@ -50,7 +64,7 @@
           </div>
 
           <!-- User Session Widget -->
-          <div id="header-user-actions" style="display: none; align-items: center; gap: var(--spacing-md);">
+          <div id="header-user-actions" style="display: none; align-items: center; gap: 10px;">
             <div class="user-widget" id="header-user-widget" onclick="appRouter.navigate('profile', 'kyc')">
               <div class="user-avatar" id="header-avatar">A</div>
               <div class="user-info">
@@ -58,7 +72,74 @@
                 <span class="user-role" id="header-kyc-badge">Đang xác thực...</span>
               </div>
             </div>
-            <button class="btn btn-glass" style="padding: 8px 12px; font-size: 12px;" onclick="handleLogout()">Đăng xuất</button>
+            <button class="btn btn-logout" onclick="handleLogout()">Đăng xuất</button>
+          </div>
+        </div>
+
+        <!-- Hamburger Menu Button -->
+        <div class="hamburger-menu" id="hamburger-menu" onclick="toggleMobileMenu()">☰</div>
+      </div>
+
+      <!-- Mobile Menu Drawer Backdrop Overlay -->
+      <div class="mobile-drawer-overlay" id="mobile-drawer-overlay" onclick="toggleMobileMenu()"></div>
+
+      <!-- Mobile Drawer Menu Panel -->
+      <div class="mobile-drawer" id="mobile-drawer">
+        <div class="mobile-drawer-header">
+          <div class="logo" onclick="appRouter.navigate('homepage'); toggleMobileMenu()">
+            <div class="logo-icon">🏛️</div>
+            <span>ONBI AUCTION</span>
+          </div>
+          <div class="close-drawer" onclick="toggleMobileMenu()">✕</div>
+        </div>
+        <div class="mobile-drawer-body">
+          <!-- Dynamic Clock inside Drawer for Mobile Screen -->
+          <div class="mobile-drawer-clock" id="mobile-drawer-clock" style="margin-bottom: var(--spacing-md); padding: 12px; border-radius: var(--radius-default); background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span class="clock-icon" style="color: var(--primary);">🕒</span>
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+              <span id="mobile-drawer-clock-time" style="font-weight: 700; color: #fff; font-size: 14px;">--:--:--</span>
+              <span id="mobile-drawer-clock-date" style="font-size: 10px; color: var(--on-surface-variant);">--/--/----</span>
+            </div>
+          </div>
+
+          <ul class="mobile-nav-menu">
+            <li class="mobile-nav-link" onclick="appRouter.navigate('homepage'); toggleMobileMenu()">🏠 Trang chủ</li>
+            
+            <li class="mobile-nav-section-title">🏢 Danh mục đấu giá</li>
+            <li class="mobile-nav-sub-link" onclick="handleCategoryDropdownClick('dat', event); toggleMobileMenu()">🏢 Đất đai</li>
+            <li class="mobile-nav-sub-link" onclick="handleCategoryDropdownClick('xe', event); toggleMobileMenu()">🚗 Xe cộ</li>
+            <li class="mobile-nav-sub-link" onclick="handleCategoryDropdownClick('tranh', event); toggleMobileMenu()">🎨 Tranh nghệ thuật</li>
+            
+            <li class="mobile-nav-section-title">⚡ Phòng đấu giá</li>
+            <li class="mobile-nav-sub-link" onclick="handleRoomsCategoryDropdownClick('dat', event); toggleMobileMenu()">🏢 Phòng Đất</li>
+            <li class="mobile-nav-sub-link" onclick="handleRoomsCategoryDropdownClick('xe', event); toggleMobileMenu()">🚗 Phòng Xe</li>
+            <li class="mobile-nav-sub-link" onclick="handleRoomsCategoryDropdownClick('tranh', event); toggleMobileMenu()">🎨 Phòng Tranh</li>
+            
+            <li class="mobile-nav-section-title">ℹ️ Thông tin khác</li>
+            <li class="mobile-nav-link" onclick="openGlobalNewsModal(); toggleMobileMenu()">📰 Tin tức & Thông báo</li>
+            <li class="mobile-nav-link" onclick="alert('ONBI AUCTION là cổng đấu giá tài sản trực tuyến hàng đầu, vận hành chính quy và công khai.'); toggleMobileMenu()">🏛️ Về chúng tôi</li>
+          </ul>
+
+          <div class="mobile-drawer-divider" style="height: 1px; background: rgba(255,255,255,0.08); margin: var(--spacing-md) 0;"></div>
+          
+          <div class="mobile-drawer-footer">
+            <!-- Mobile Guest Actions -->
+            <div id="mobile-guest-actions" style="display: flex; flex-direction: column; gap: var(--spacing-sm); width: 100%;">
+              <button class="btn btn-register" style="width: 100%; padding: 12px; font-weight: 700;" onclick="appRouter.navigate('login', 'register'); toggleMobileMenu()">Đăng ký tài khoản</button>
+              <button class="btn btn-login" style="width: 100%; padding: 12px; font-weight: 700;" onclick="appRouter.navigate('login', 'signin'); toggleMobileMenu()">Đăng nhập</button>
+            </div>
+
+            <!-- Mobile User Session Widget -->
+            <div id="mobile-user-actions" style="display: none; flex-direction: column; gap: var(--spacing-md); width: 100%;">
+              <div class="user-widget" id="mobile-user-widget" onclick="appRouter.navigate('profile', 'kyc'); toggleMobileMenu()" style="width: 100%; justify-content: flex-start; padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: var(--radius-default);">
+                <div class="user-avatar" id="mobile-avatar" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--primary-glow); border: 1px solid var(--primary); color: var(--primary); font-weight: 800; font-size: 16px;">A</div>
+                <div class="user-info" style="display: flex; flex-direction: column; gap: 2px; margin-left: 10px;">
+                  <span class="user-name" id="mobile-username" style="font-weight: 700; color: #fff; font-size: 14px;">Nguyễn Văn A</span>
+                  <span class="user-role" id="mobile-kyc-badge" style="font-size: 11px; font-weight: 600;">Đang xác thực...</span>
+                </div>
+              </div>
+              <button class="btn btn-logout" style="width: 100%; padding: 12px; font-weight: 700; background: rgba(255, 75, 75, 0.1); border: 1px solid rgba(255, 75, 75, 0.2); color: #ff4b4b;" onclick="handleLogout(); toggleMobileMenu()">Đăng xuất</button>
+            </div>
           </div>
         </div>
       </div>
@@ -539,10 +620,16 @@
 
     <!-- VIEW 3: SEARCH & FILTER VIEW -->
     <div id="search-view" class="view-container">
+      <!-- Floating Filter Trigger Button on Mobile -->
+      <button class="btn-floating-filter" id="btn-floating-filter" onclick="toggleMobileFilter()">🔍 Bộ lọc</button>
+      
+      <!-- Mobile Filter Sidebar Backdrop Overlay -->
+      <div class="filter-sidebar-overlay" id="filter-sidebar-overlay" onclick="toggleMobileFilter()"></div>
+
       <div class="search-view-layout">
         
         <!-- Left Filter Sidebar -->
-        <aside class="glass-panel filter-sidebar">
+        <aside class="glass-panel filter-sidebar" id="filter-sidebar">
           <h3 class="filter-title">Bộ lọc tài sản</h3>
           
           <div class="filter-section">
@@ -1091,17 +1178,16 @@
             </div>
           </div>
 
-          <!-- SECTION F: FAVORITE AUCTIONS (MOCK TAB) -->
-          <div id="profile-sec-favorites" class="profile-section-wrapper" style="display: none;">
+          <!-- SECTION F: FAVORITE AUCTIONS (REAL TAB) -->
+          <div id="profile-sec-favorites" class="profile-section-wrapper" style="display: none; flex-direction: column; width: 100%;">
             <div class="profile-section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
               <h2 style="font-size: 18px; color: #fff; margin: 0;">Cuộc đấu giá yêu thích</h2>
-              <span class="results-count" style="font-size: 13px; color: var(--primary);">Chưa có tài sản</span>
+              <span class="results-count" id="favorites-count-label" style="font-size: 13px; color: var(--primary); font-weight: 700;">Chưa có tài sản</span>
             </div>
             
-            <div style="text-align: center; padding: 48px; color: var(--on-surface-variant); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--spacing-md); flex: 1;">
-              <span style="font-size: 40px;">💖</span>
-              <p style="margin: 0; font-size: 14px; color: var(--on-surface-variant);">Bạn chưa thêm cuộc đấu giá nào vào danh sách yêu thích.</p>
-              <button class="btn btn-primary" onclick="appRouter.navigate('search')" style="padding: 8px 16px; font-size: 12.5px; font-weight: 700; margin-top: 8px;">Khám phá tài sản ngay</button>
+            <!-- Dynamic Grid or Empty placeholder -->
+            <div id="favorites-content-wrapper" style="width: 100%; flex: 1;">
+              <!-- Populated dynamically by renderFavoritesSection() -->
             </div>
           </div>
 
@@ -1223,6 +1309,10 @@
           <div class="rooms-title-section">
             <h1>Danh Sách Phòng Đấu Giá</h1>
             <p>Hệ thống phòng đấu trực tuyến thời gian thực tích hợp eKYC & Anti-Sniping</p>
+            <div id="rooms-category-indicator" style="display: none; margin-top: 10px; font-size: 13.5px; color: var(--primary); font-weight: 700; align-items: center; gap: 8px;">
+              <span>Bộ lọc danh mục: <strong id="rooms-active-category-name" style="color: #fff;">Đất</strong></span>
+              <a href="javascript:void(0)" onclick="clearRoomsCategoryFilter(event)" style="color: var(--error); text-decoration: underline; font-weight: normal; margin-left: 8px;">[Hủy lọc danh mục]</a>
+            </div>
           </div>
           
           <div class="rooms-filter-controls">
@@ -1681,6 +1771,75 @@
           <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-setup-2fa')">HỦY BỎ</button>
           <button class="btn btn-primary" style="flex:1; background: var(--tertiary); border-color: var(--tertiary); color: var(--on-tertiary); box-shadow: 0 4px 15px var(--tertiary-glow);" onclick="confirm2FAActivation()">XÁC NHẬN KÍCH HOẠT</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Fireworks Canvas Overlay -->
+    <canvas id="fireworks-canvas"></canvas>
+
+    <!-- Popup Winner Modal -->
+    <div class="modal-overlay" id="modal-bidding-winner">
+      <div class="modal-content glass-panel" style="border-color: var(--primary); box-shadow: 0 10px 40px rgba(212, 175, 55, 0.3);">
+        <div class="modal-close-btn" onclick="handleCloseResultModal(true)">×</div>
+        <div class="modal-header-icon" style="color: var(--primary); text-shadow: 0 0 20px rgba(212, 175, 55, 0.4);">🏆</div>
+        <h3 class="modal-title" style="color: var(--primary); font-size: 22px; font-weight: 800;">CHÚC MỪNG TRÚNG ĐẤU GIÁ!</h3>
+        <p class="modal-desc" style="font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+          Xin chúc mừng! Bạn là thợ thầu trả giá cao nhất khi phiên đấu giá khép lại. Hồ sơ đấu giá của bạn đã thắng cuộc thành công.
+        </p>
+        
+        <div class="winner-info-card" style="background: rgba(212, 175, 55, 0.05); border: 1px dashed rgba(212, 175, 55, 0.3); border-radius: var(--radius-md); padding: var(--spacing-md); margin-bottom: 24px; text-align: left;">
+          <div style="font-size: 11px; color: var(--on-surface-variant); text-transform: uppercase; font-weight: bold; margin-bottom: 4px;">Tài sản trúng đấu giá:</div>
+          <div id="winner-asset-name" style="font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 12px; line-height: 1.4;">--</div>
+          <div style="font-size: 11px; color: var(--on-surface-variant); text-transform: uppercase; font-weight: bold; margin-bottom: 4px;">Giá chốt hợp đồng (Tổng):</div>
+          <div id="winner-final-price" style="font-size: 20px; font-weight: 800; color: var(--secondary); font-family: var(--font-mono);">0 đ</div>
+        </div>
+
+        <div style="display: flex; gap: var(--spacing-sm);">
+          <button class="btn btn-primary" style="flex: 1; padding: 12px 20px; font-weight: 700;" onclick="handleCloseResultModal(true)">XÁC NHẬN & XEM BIÊN BẢN</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popup Loser Modal -->
+    <div class="modal-overlay" id="modal-bidding-loser">
+      <div class="modal-content glass-panel" style="border-color: var(--outline-variant); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);">
+        <div class="modal-close-btn" onclick="handleCloseResultModal(false)">×</div>
+        <div class="modal-header-icon" style="color: var(--outline); text-shadow: none;">🤝</div>
+        <h3 class="modal-title" style="color: #fff; font-size: 20px; font-weight: 700;">PHIÊN ĐẤU GIÁ KẾT THÚC</h3>
+        <p class="modal-desc" style="font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+          Phiên đấu thầu tài sản này đã chính thức kết thúc thời gian trả giá. Rất tiếc, mức trả giá của bạn không nằm ở vị trí cao nhất. Cảm ơn bạn đã tham gia phiên đấu.
+        </p>
+        
+        <div class="loser-info-card" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: var(--radius-md); padding: var(--spacing-md); margin-bottom: 24px; text-align: left;">
+          <div style="font-size: 11px; color: var(--on-surface-variant); text-transform: uppercase; font-weight: bold; margin-bottom: 4px;">Tài sản đấu giá:</div>
+          <div id="loser-asset-name" style="font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 12px; line-height: 1.4;">--</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
+            <span style="font-size: 12px; color: var(--on-surface-variant);">Tiền cọc thầu:</span>
+            <span style="font-size: 12px; color: var(--tertiary); font-weight: 700;">Hoàn trả tự động (3-5 ngày)</span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: var(--spacing-sm);">
+          <button class="btn btn-glass" style="flex: 1; padding: 12px 20px; font-weight: 700;" onclick="handleCloseResultModal(false)">ĐỒNG Ý & ĐÓNG</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Simulator Toggle Button -->
+    <div class="simulator-toggle-btn" id="simulator-toggle-btn" onclick="toggleSimulatorPanel()">🛠️</div>
+
+    <!-- Bidding Phase Simulator Panel (Visible in Bidding Room only) -->
+    <div id="bidding-simulator-panel">
+      <div class="simulator-header">
+        <span class="simulator-icon">🛠️</span>
+        <span class="simulator-title">BẢNG GIẢ LẬP PHÒNG ĐẤU</span>
+      </div>
+      <div class="simulator-body">
+        <button class="simulator-btn" onclick="simulatePhase('REGISTRATION')">⏰ Đăng ký cọc thầu</button>
+        <button class="simulator-btn" onclick="simulatePhase('WAITING')">⌛ Chờ đấu giá (Disable)</button>
+        <button class="simulator-btn" onclick="simulatePhase('LIVE')">🟢 Bắt đầu đấu LIVE</button>
+        <button class="simulator-btn simulator-btn-warn" onclick="simulateFiveSecondsLeft()">⚡ 5s Cuối (Anti-Sniping)</button>
+        <button class="simulator-btn simulator-btn-danger" onclick="simulatePhase('ENDED')">🔴 Kết thúc phiên đấu</button>
       </div>
     </div>
 
